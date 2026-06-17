@@ -1,6 +1,6 @@
 'use server'
 
-import { supabaseAdmin } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 import { PushSubscriptionJSON } from '@/types'
 
 export async function cancelTicket(ticketId: string): Promise<{ ok: boolean; error?: string }> {

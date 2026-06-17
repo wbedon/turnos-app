@@ -1,5 +1,5 @@
 import { createSupabaseServer } from '@/lib/supabase-server'
-import { supabaseAdmin } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 import LoginForm from './LoginForm'
 import AdminClient from './AdminClient'
 

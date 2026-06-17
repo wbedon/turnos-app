@@ -1,5 +1,5 @@
 import webpush from 'web-push'
-import { supabaseAdmin } from './supabase'
+import { supabaseAdmin } from './supabase-admin'
 
 webpush.setVapidDetails(
   process.env.VAPID_EMAIL!,
