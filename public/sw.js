@@ -1,4 +1,9 @@
-// Service Worker — maneja push notifications y notificationclick
+// Service Worker — maneja push notifications, notificationclick e instalación PWA
+
+// fetch es requerido por Chrome para habilitar el prompt de instalación PWA
+self.addEventListener('fetch', (event) => {
+  event.respondWith(fetch(event.request))
+})
 
 self.addEventListener('push', (event) => {
   const data = event.data?.json() ?? {}
