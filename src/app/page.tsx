@@ -22,7 +22,7 @@ export default function Home() {
         className="text-center"
       >
         <p className="text-xs font-mono text-amber-400 uppercase tracking-[0.3em] mb-3">
-          ◆ Sistema de Gestión
+          ◆ Sistema de Turnos
         </p>
         <h1 className="text-4xl font-black uppercase tracking-tight text-zinc-100">
           Turnos
@@ -85,7 +85,7 @@ export default function Home() {
         transition={{ delay: 0.5 }}
         className="text-xs font-mono text-zinc-700 tracking-widest"
       >
-        SELECT TERMINAL
+        SELECCIONÁ UN MÓDULO
       </motion.p>
     </main>
   );

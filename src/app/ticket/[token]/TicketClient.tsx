@@ -98,7 +98,7 @@ export default function TicketClient({ ticket: initialTicket, waitingAhead: init
             transition={{ delay: 0.12 }}
             className="text-xs font-mono uppercase tracking-[0.3em] text-zinc-700"
           >
-            ◆ Llamado al mostrador
+            ◆ Es tu turno
           </motion.p>
 
           <motion.h1

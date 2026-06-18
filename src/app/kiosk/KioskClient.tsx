@@ -76,7 +76,7 @@ export default function KioskClient({ queues }: Props) {
               className="text-center pt-4 w-full"
             >
               <p className="text-xs font-mono text-amber-400 uppercase tracking-[0.3em]">
-                ◆ Boarding Pass
+                ◆ Listo, guardá este número
               </p>
             </motion.div>
 
@@ -153,7 +153,7 @@ export default function KioskClient({ queues }: Props) {
             {/* Header */}
             <header className="border-b border-zinc-800 px-6 py-5 shrink-0">
               <p className="text-xs font-mono text-amber-400 uppercase tracking-[0.3em] mb-1">
-                ◆ Terminal de Autoservicio
+                ◆ Autoatención
               </p>
               <h1 className="text-xl font-black uppercase tracking-tight text-zinc-100">
                 ¿En qué podemos ayudarte?
