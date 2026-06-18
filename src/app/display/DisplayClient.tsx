@@ -73,33 +73,36 @@ export default function DisplayClient({ initialQueues, initialWaiting }: Props) 
   const activeQueues = queues.filter((q) => q.is_active)
 
   return (
-    <div className="h-screen bg-stone-950 text-white flex flex-col overflow-hidden select-none">
+    <div className="scanlines h-screen bg-zinc-950 text-zinc-100 flex flex-col overflow-hidden select-none">
 
-      {/* Header */}
-      <header className="bg-orange-600 px-6 py-3 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-3">
-          <span className="text-3xl" aria-hidden="true">🏪</span>
-          <span className="font-black tracking-tight text-[clamp(1.1rem,2.5vw,2rem)] uppercase">
-            Turnos en Atención
-          </span>
+      {/* Header — departure board style */}
+      <header className="border-b border-zinc-800 px-6 py-3 flex items-center justify-between shrink-0 bg-zinc-950">
+        <div className="flex items-center gap-4">
+          <div className="w-1 h-8 bg-amber-400" aria-hidden="true" />
+          <div>
+            <p className="text-[10px] font-mono text-amber-400 uppercase tracking-[0.3em]">◆ Sistema de Turnos</p>
+            <p className="font-black text-[clamp(0.9rem,2vw,1.6rem)] uppercase tracking-tight text-zinc-100">
+              TURNOS EN ATENCIÓN
+            </p>
+          </div>
         </div>
         <div className="text-right" aria-label={`Hora: ${timeStr}`}>
-          <div className="font-mono font-bold tabular-nums text-[clamp(1.4rem,3vw,2.5rem)] tracking-tight">
+          <div className="font-mono font-bold tabular-nums text-[clamp(1.4rem,3vw,2.5rem)] tracking-tight text-cyan-400">
             {timeStr}
           </div>
-          <div className="text-xs text-orange-100 capitalize">{dateStr}</div>
+          <div className="text-[10px] font-mono text-zinc-600 capitalize tracking-widest">{dateStr}</div>
         </div>
       </header>
 
-      {/* Columnas */}
+      {/* Columnas — departure board */}
       <main
         aria-label="Panel de turnos en atención"
-        className="flex-1 grid gap-2 p-2 min-h-0"
-        style={{ gridTemplateColumns: `repeat(auto-fit, minmax(min(240px, 100%), 1fr))` }}
+        className="flex-1 grid gap-px p-px bg-zinc-800 min-h-0"
+        style={{ gridTemplateColumns: `repeat(auto-fit, minmax(min(280px, 100%), 1fr))` }}
       >
         {activeQueues.length === 0 ? (
-          <div className="col-span-full flex items-center justify-center text-stone-700 text-xl">
-            No hay colas activas
+          <div className="col-span-full flex items-center justify-center bg-zinc-950 text-zinc-700 font-mono text-xl uppercase tracking-widest">
+            NO HAY COLAS ACTIVAS
           </div>
         ) : (
           activeQueues.map((queue, i) => {
@@ -109,78 +112,82 @@ export default function DisplayClient({ initialQueues, initialWaiting }: Props) 
             return (
               <motion.div
                 key={queue.id}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.08, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                className={`flex flex-col bg-stone-900 rounded-xl overflow-hidden transition-all duration-500
-                  ${isHighlighted
-                    ? 'ring-2 ring-orange-400 shadow-xl shadow-orange-900/40'
-                    : 'ring-1 ring-stone-800'}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: i * 0.08, duration: 0.4 }}
+                className={`flex flex-col bg-zinc-950 overflow-hidden transition-all duration-500
+                  ${isHighlighted ? 'bg-zinc-900' : ''}`}
               >
-                {/* Nombre */}
-                <div className="bg-stone-800 px-4 py-3 flex items-center gap-3 shrink-0">
-                  <span className="text-[clamp(1.2rem,3vw,2rem)]" aria-hidden="true">{queue.icon}</span>
-                  <h2 className="font-bold text-stone-100 uppercase tracking-wider text-[clamp(0.8rem,1.8vw,1.3rem)]">
+                {/* Cola header */}
+                <div className={`px-4 py-3 flex items-center gap-3 shrink-0 border-b
+                  ${isHighlighted ? 'border-amber-400/30 bg-zinc-900' : 'border-zinc-800 bg-zinc-950'}`}
+                >
+                  <span className="text-xl" aria-hidden="true">{queue.icon}</span>
+                  <h2 className="font-mono font-bold text-zinc-300 uppercase tracking-wider text-[clamp(0.7rem,1.5vw,1rem)]">
                     {queue.name}
                   </h2>
+                  {isHighlighted && (
+                    <span className="ml-auto text-[10px] font-mono text-cyan-400 uppercase tracking-widest animate-pulse">
+                      ● LIVE
+                    </span>
+                  )}
                 </div>
 
-                {/* Número en atención */}
+                {/* Número grande — departure board */}
                 <div
                   aria-live="polite"
                   aria-label={queue.current_serving > 0
                     ? `Atendiendo: ${queue.prefix}-${String(queue.current_serving).padStart(3,'0')}`
                     : `${queue.name}: sin llamados aún`}
-                  className="flex-1 flex items-center justify-center min-h-0 py-4 overflow-hidden"
+                  className="flex-1 flex items-center justify-center min-h-0 py-6 overflow-hidden"
                 >
                   {queue.current_serving > 0 ? (
                     <div className="text-center">
+                      <p className="text-[10px] font-mono text-zinc-600 uppercase tracking-[0.3em] mb-2">EN ATENCIÓN</p>
                       <AnimatePresence mode="wait">
                         <motion.div
                           key={queue.current_serving}
-                          initial={{ y: -50, opacity: 0 }}
+                          initial={{ y: -60, opacity: 0 }}
                           animate={{ y: 0, opacity: 1 }}
-                          exit={{ y: 50, opacity: 0 }}
+                          exit={{ y: 60, opacity: 0 }}
                           transition={spring}
-                          className={`font-black text-orange-400 tabular-nums leading-none transition-transform duration-300
-                            ${isHighlighted ? 'scale-110' : ''}`}
-                          style={{ fontSize: 'clamp(4rem, 10vw, 9rem)' }}
+                          className={`font-mono font-bold tabular-nums leading-none
+                            ${isHighlighted ? 'text-amber-300' : 'text-amber-400'}`}
+                          style={{ fontSize: 'clamp(4rem, 12vw, 10rem)' }}
                         >
                           {queue.prefix}-{String(queue.current_serving).padStart(3, '0')}
                         </motion.div>
                       </AnimatePresence>
-                      <div className="text-stone-600 mt-2 uppercase tracking-widest text-xs">
-                        En atención
-                      </div>
                     </div>
                   ) : (
-                    <div className="text-center text-stone-700">
-                      <div className="text-5xl mb-2" aria-hidden="true">⏳</div>
-                      <div className="text-sm tracking-wider">Sin llamados aún</div>
+                    <div className="text-center">
+                      <div className="font-mono text-zinc-800 uppercase tracking-widest text-sm">
+                        --- ---
+                      </div>
+                      <p className="text-[10px] font-mono text-zinc-700 mt-2 uppercase tracking-widest">Sin llamados</p>
                     </div>
                   )}
                 </div>
 
                 {/* Próximos */}
-                <div className="bg-stone-800 px-4 py-3 shrink-0 min-h-[5rem]">
-                  <div className="text-xs text-stone-500 uppercase tracking-widest mb-2">Próximos</div>
+                <div className="border-t border-zinc-800 px-4 py-3 shrink-0">
+                  <p className="text-[10px] font-mono text-zinc-600 uppercase tracking-[0.25em] mb-2">PRÓXIMOS</p>
                   {info && info.nextNumbers.length > 0 ? (
                     <div className="flex gap-2 flex-wrap items-center">
                       {info.nextNumbers.map((n) => (
                         <span
                           key={n}
-                          className="bg-stone-700 text-stone-200 rounded-lg px-3 py-1.5 font-mono font-semibold"
-                          style={{ fontSize: 'clamp(0.75rem,1.5vw,1.1rem)' }}
+                          className="border border-zinc-700 bg-zinc-900 text-zinc-400 font-mono text-xs px-2.5 py-1 tabular-nums"
                         >
                           {queue.prefix}-{String(n).padStart(3, '0')}
                         </span>
                       ))}
                       {info.count > 3 && (
-                        <span className="text-stone-500 text-sm">+{info.count - 3} más</span>
+                        <span className="text-zinc-600 font-mono text-xs">+{info.count - 3}</span>
                       )}
                     </div>
                   ) : (
-                    <span className="text-stone-600 text-sm">Sin espera</span>
+                    <span className="text-zinc-700 font-mono text-xs uppercase tracking-widest">SIN ESPERA</span>
                   )}
                 </div>
               </motion.div>
@@ -190,9 +197,9 @@ export default function DisplayClient({ initialQueues, initialWaiting }: Props) 
       </main>
 
       {/* Footer */}
-      <footer className="bg-stone-900 border-t border-stone-800 px-6 py-2 text-center shrink-0">
-        <p className="text-stone-600 text-xs tracking-wider">
-          ¡Gracias por su paciencia! &nbsp;•&nbsp; Escaneá el QR del kiosco para seguir tu turno desde el celular
+      <footer className="border-t border-zinc-800 px-6 py-2 text-center shrink-0 bg-zinc-950">
+        <p className="text-zinc-700 font-mono text-[10px] uppercase tracking-[0.2em]">
+          GRACIAS POR SU PACIENCIA &nbsp;◆&nbsp; ESCANEÁ EL QR DEL KIOSCO PARA SEGUIR TU TURNO DESDE EL CELULAR
         </p>
       </footer>
     </div>

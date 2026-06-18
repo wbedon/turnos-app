@@ -2,54 +2,58 @@
 
 @theme {
   --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-space-mono), 'Courier New', monospace;
 }
 
-*, *::before, *::after {
-  box-sizing: border-box;
-}
+*, *::before, *::after { box-sizing: border-box; }
 
-html {
-  scroll-behavior: smooth;
-  -webkit-text-size-adjust: 100%;
-}
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 
 body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #fafaf9; /* stone-50 */
+  background-color: #09090b; /* zinc-950 */
+  color: #f4f4f5;
 }
 
-/* Utility: visually hidden but screen-reader accessible */
 .sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border-width: 0;
+}
+
+/* Boarding pass perforation */
+.perforation {
+  position: relative;
+}
+.perforation::before {
+  content: '';
   position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
+  left: -1.5rem; right: -1.5rem;
+  border-top: 2px dashed rgba(255,255,255,0.08);
 }
 
-/* Smooth number flip for scoreboard effect */
-@keyframes slide-up {
-  from { transform: translateY(20px); opacity: 0; }
-  to   { transform: translateY(0);    opacity: 1; }
+/* Scanline overlay for TV display */
+.scanlines::after {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(0,0,0,0.08) 3px,
+    rgba(0,0,0,0.08) 4px
+  );
 }
 
-@keyframes slide-down {
-  from { transform: translateY(-20px); opacity: 0; }
-  to   { transform: translateY(0);     opacity: 1; }
+/* Amber glow on hover for kiosk buttons */
+@keyframes amber-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(251,191,36,0); }
+  50%       { box-shadow: 0 0 32px 4px rgba(251,191,36,0.15); }
 }
+.amber-glow-hover:hover { animation: amber-pulse 2s ease-in-out infinite; }
 
-@keyframes pulse-ring {
-  0%   { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4); }
-  70%  { box-shadow: 0 0 0 16px rgba(249, 115, 22, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); }
-}
-
-.animate-pulse-ring {
-  animation: pulse-ring 1.5s ease-out infinite;
-}
+/* Number flip animation */
+@keyframes flip-in  { from { transform: translateY(-40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes flip-out { from { transform: translateY(0); opacity: 1; }     to { transform: translateY(40px); opacity: 0; } }

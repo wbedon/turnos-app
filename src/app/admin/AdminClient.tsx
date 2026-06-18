@@ -77,25 +77,28 @@ export default function AdminClient({ queues, userEmail }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50 flex flex-col">
+    <div className="min-h-screen bg-zinc-950 flex flex-col">
 
       {/* Header */}
-      <header className="bg-orange-600 text-white px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <span className="text-2xl" aria-hidden="true">⚙️</span>
+      <header className="border-b border-zinc-800 px-6 py-4 flex items-center justify-between bg-zinc-950">
+        <div className="flex items-center gap-4">
+          <div className="w-1 h-8 bg-amber-400" aria-hidden="true" />
           <div>
-            <p className="font-black text-lg leading-tight tracking-tight">Panel de Operador</p>
-            <p className="text-xs text-orange-100">{userEmail}</p>
+            <p className="text-[10px] font-mono text-amber-400 uppercase tracking-[0.3em]">◆ Panel de Control</p>
+            <p className="font-black text-base uppercase tracking-tight text-zinc-100">OPERADOR</p>
           </div>
         </div>
-        <motion.button
-          onClick={() => startTransition(() => logout())}
-          whileTap={{ scale: 0.95 }}
-          transition={spring}
-          className="text-sm bg-white/20 hover:bg-white/30 px-4 py-2 rounded-xl transition-colors font-medium"
-        >
-          Salir
-        </motion.button>
+        <div className="text-right">
+          <p className="text-[10px] font-mono text-zinc-600 mb-1">{userEmail}</p>
+          <motion.button
+            onClick={() => startTransition(() => logout())}
+            whileTap={{ scale: 0.95 }}
+            transition={spring}
+            className="text-xs font-mono text-zinc-500 hover:text-zinc-300 uppercase tracking-widest transition-colors"
+          >
+            SALIR →
+          </motion.button>
+        </div>
       </header>
 
       <div className="flex-1 flex flex-col gap-4 p-5 max-w-lg mx-auto w-full">
@@ -105,9 +108,9 @@ export default function AdminClient({ queues, userEmail }: Props) {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, ease }}
-          className="bg-white rounded-2xl ring-1 ring-stone-200 shadow-sm p-4"
+          className="border border-zinc-800 bg-zinc-900 p-4"
         >
-          <p className="text-xs text-stone-400 uppercase tracking-[0.12em] font-semibold mb-3">Cola a atender</p>
+          <p className="text-[10px] font-mono text-zinc-600 uppercase tracking-[0.25em] mb-3">COLA A ATENDER</p>
           <div className="grid grid-cols-2 gap-2">
             {queues.map((q) => (
               <motion.button
@@ -116,12 +119,12 @@ export default function AdminClient({ queues, userEmail }: Props) {
                 aria-pressed={selectedId === q.id}
                 whileTap={{ scale: 0.96 }}
                 transition={spring}
-                className={`flex items-center gap-2 px-4 py-3 rounded-xl border-2 transition-colors duration-150 font-semibold text-sm
+                className={`flex items-center gap-2 px-4 py-3 border transition-colors duration-150 font-mono text-sm uppercase tracking-wide
                   ${selectedId === q.id
-                    ? 'border-orange-400 bg-orange-50 text-orange-700'
-                    : 'border-stone-100 bg-stone-50 text-stone-500 hover:border-stone-200'}`}
+                    ? 'border-amber-400/60 bg-amber-400/10 text-amber-400'
+                    : 'border-zinc-700 bg-zinc-950 text-zinc-500 hover:border-zinc-600 hover:text-zinc-300'}`}
               >
-                <span className="text-xl" aria-hidden="true">{q.icon}</span>
+                <span className="text-base" aria-hidden="true">{q.icon}</span>
                 <span>{q.name}</span>
               </motion.button>
             ))}
@@ -133,19 +136,20 @@ export default function AdminClient({ queues, userEmail }: Props) {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05, duration: 0.3, ease }}
-          className={`bg-white rounded-2xl ring-1 ring-stone-200 shadow-sm p-6 text-center transition-all duration-300
-            ${reiterated ? 'ring-orange-300 ring-2 scale-[1.01]' : ''}`}
+          className={`border bg-zinc-900 p-6 text-center transition-all duration-300
+            ${reiterated ? 'border-amber-400/60' : 'border-zinc-800'}`}
         >
-          <p className="text-xs text-stone-400 uppercase tracking-[0.12em] font-semibold mb-3">Atendiendo ahora</p>
+          <p className="text-[10px] font-mono text-zinc-600 uppercase tracking-[0.25em] mb-4">ATENDIENDO AHORA</p>
           <AnimatePresence mode="wait">
             {serving > 0 ? (
               <motion.div
                 key={serving}
-                initial={{ scale: 0.85, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 1.1, opacity: 0 }}
+                initial={{ scale: 0.85, opacity: 0, y: -20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 1.05, opacity: 0, y: 20 }}
                 transition={spring}
-                className="text-6xl font-black text-orange-500 tabular-nums tracking-tight"
+                className="font-mono font-bold text-amber-400 tabular-nums leading-none"
+                style={{ fontSize: 'clamp(3rem, 12vw, 5rem)' }}
               >
                 {selected?.prefix}-{String(serving).padStart(3, '0')}
               </motion.div>
@@ -154,34 +158,34 @@ export default function AdminClient({ queues, userEmail }: Props) {
                 key="empty"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-2xl text-stone-400 font-semibold"
+                className="font-mono text-zinc-700 text-2xl uppercase tracking-widest"
               >
-                — Sin llamados —
+                --- ---
               </motion.div>
             )}
           </AnimatePresence>
-          <div className="mt-4 flex justify-center gap-6 text-sm text-stone-400">
-            <span><span aria-hidden="true">✅ </span>Atendidos hoy: <strong className="text-stone-700">{stats.attended}</strong></span>
-            <span><span aria-hidden="true">⏳ </span>En espera: <strong className="text-stone-700">{stats.waiting}</strong></span>
+          <div className="mt-5 flex justify-center gap-6 text-xs font-mono text-zinc-600 uppercase tracking-widest">
+            <span>ATENDIDOS: <strong className="text-zinc-300">{stats.attended}</strong></span>
+            <span>EN ESPERA: <strong className="text-zinc-300">{stats.waiting}</strong></span>
           </div>
         </motion.div>
 
         {/* Feedback toast */}
-        <div className="h-12 flex items-center justify-center">
+        <div className="h-10 flex items-center justify-center">
           <AnimatePresence>
             {feedback && (
               <motion.div
                 key={feedback.msg}
-                initial={{ opacity: 0, y: -8, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
                 transition={spring}
                 role="status"
                 aria-live="polite"
-                className={`px-5 py-2.5 rounded-xl text-sm font-semibold ring-1
+                className={`px-5 py-2 border font-mono text-xs uppercase tracking-widest
                   ${feedback.ok
-                    ? 'bg-green-50 text-green-700 ring-green-200'
-                    : 'bg-red-50 text-red-700 ring-red-200'}`}
+                    ? 'border-cyan-400/40 bg-zinc-900 text-cyan-400'
+                    : 'border-red-500/40 bg-zinc-900 text-red-400'}`}
               >
                 {feedback.ok ? '✓' : '✗'} {feedback.msg}
               </motion.div>
@@ -200,12 +204,12 @@ export default function AdminClient({ queues, userEmail }: Props) {
           aria-label={isPending ? 'Llamando turno siguiente…' : 'Llamar siguiente turno'}
           whileTap={{ scale: 0.97 }}
           whileHover={{ scale: 1.01 }}
-          className="w-full bg-orange-600 hover:bg-orange-700 active:bg-orange-800
-                     text-white text-2xl font-black py-7 rounded-2xl shadow-md
-                     transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed
-                     focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2"
+          className="w-full amber-glow-hover bg-amber-400 hover:bg-amber-300 text-zinc-950
+                     font-black py-7 uppercase tracking-widest text-lg
+                     transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed
+                     focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-zinc-950"
         >
-          {isPending ? '…' : '▶  LLAMAR SIGUIENTE'}
+          {isPending ? '···' : '▶  LLAMAR SIGUIENTE'}
         </motion.button>
 
         {/* Acciones secundarias */}
@@ -220,12 +224,12 @@ export default function AdminClient({ queues, userEmail }: Props) {
             disabled={isPending || serving === 0}
             whileTap={{ scale: 0.96 }}
             transition={spring}
-            className="flex flex-col items-center gap-1 py-4 bg-white rounded-2xl ring-1 ring-stone-200 shadow-sm
-                       hover:ring-orange-200 transition-all duration-150 disabled:opacity-40 text-stone-600
-                       focus:outline-none focus:ring-2 focus:ring-orange-300"
+            className="flex flex-col items-center gap-2 py-4 border border-zinc-800 bg-zinc-900
+                       hover:border-zinc-700 transition-colors duration-150 disabled:opacity-30
+                       focus:outline-none focus:ring-1 focus:ring-zinc-600"
           >
-            <span className="text-2xl" aria-hidden="true">🔁</span>
-            <span className="text-sm font-semibold">Reiterar llamado</span>
+            <span className="text-xl" aria-hidden="true">🔁</span>
+            <span className="text-xs font-mono text-zinc-400 uppercase tracking-wider">Reiterar</span>
           </motion.button>
 
           <motion.button
@@ -233,17 +237,17 @@ export default function AdminClient({ queues, userEmail }: Props) {
             disabled={isPending || serving === 0}
             whileTap={{ scale: 0.96 }}
             transition={spring}
-            className="flex flex-col items-center gap-1 py-4 bg-white rounded-2xl ring-1 ring-stone-200 shadow-sm
-                       hover:ring-red-200 transition-all duration-150 disabled:opacity-40 text-stone-600
-                       focus:outline-none focus:ring-2 focus:ring-red-300"
+            className="flex flex-col items-center gap-2 py-4 border border-zinc-800 bg-zinc-900
+                       hover:border-red-500/40 hover:text-red-400 transition-colors duration-150 disabled:opacity-30
+                       focus:outline-none focus:ring-1 focus:ring-red-500/40"
           >
-            <span className="text-2xl" aria-hidden="true">⏭️</span>
-            <span className="text-sm font-semibold">Marcar ausente</span>
+            <span className="text-xl" aria-hidden="true">⏭️</span>
+            <span className="text-xs font-mono text-zinc-400 uppercase tracking-wider">Ausente</span>
           </motion.button>
         </motion.div>
 
         {/* Reset */}
-        <div className="mt-1 pt-4 border-t border-stone-200">
+        <div className="mt-1 pt-4 border-t border-zinc-800">
           <ResetButton />
         </div>
 

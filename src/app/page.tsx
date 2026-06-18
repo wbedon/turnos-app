@@ -3,72 +3,90 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 
-const spring = { type: "spring", stiffness: 400, damping: 28 } as const;
-
 const screens = [
-  { href: "/kiosk",   icon: "🖨️", label: "Kiosco",  desc: "Pantalla para tomar turno",        active: true  },
-  { href: "/display", icon: "📺", label: "Display", desc: "Pantalla TV sala de espera",        active: true  },
-  { href: "/admin",   icon: "⚙️", label: "Admin",   desc: "Panel del operador",               active: true  },
-  { href: "#",        icon: "📱", label: "Móvil",   desc: "Acceso via QR del kiosco",         active: false },
+  { href: "/kiosk",   label: "KIOSCO",   sub: "Sacar turno",          active: true,  code: "K" },
+  { href: "/display", label: "DISPLAY",  sub: "Pantalla sala espera", active: true,  code: "D" },
+  { href: "/admin",   label: "ADMIN",    sub: "Panel operador",       active: true,  code: "A" },
+  { href: "#",        label: "MÓVIL",    sub: "Acceso por QR",        active: false, code: "M" },
 ];
 
 export default function Home() {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center gap-10 p-8 bg-stone-50">
+    <main className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center gap-12 p-8">
 
+      {/* Header */}
       <motion.div
-        initial={{ opacity: 0, y: -16 }}
+        initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
         className="text-center"
       >
-        <div className="text-5xl mb-4" aria-hidden="true">🏪</div>
-        <h1 className="text-3xl font-black text-stone-900 tracking-tight">Sistema de Turnos</h1>
-        <p className="text-stone-500 mt-2 text-sm">Seleccioná la pantalla a usar</p>
+        <p className="text-xs font-mono text-amber-400 uppercase tracking-[0.3em] mb-3">
+          ◆ Sistema de Gestión
+        </p>
+        <h1 className="text-4xl font-black uppercase tracking-tight text-zinc-100">
+          Turnos
+        </h1>
+        <div className="mt-3 h-px w-16 bg-amber-400 mx-auto" />
       </motion.div>
 
-      <nav aria-label="Pantallas del sistema" className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-md">
-        {screens.map(({ href, icon, label, desc, active }, i) => {
-          const content = (
-            <>
-              <span className="text-4xl" aria-hidden="true">{icon}</span>
-              <span className="font-semibold text-stone-800 text-base">{label}</span>
-              <span className="text-xs text-stone-400 text-center leading-snug">{desc}</span>
-            </>
-          );
+      {/* Nav grid */}
+      <nav aria-label="Pantallas del sistema" className="grid grid-cols-2 gap-3 w-full max-w-sm">
+        {screens.map(({ href, label, sub, active, code }, i) => {
+          const base = "flex flex-col justify-between p-5 border border-zinc-800 aspect-square";
 
           if (!active) return (
             <div
               key={label}
               aria-disabled="true"
-              aria-label={`${label} — no disponible, accedé por QR del kiosco`}
-              className="flex flex-col items-center gap-3 p-6 bg-white rounded-2xl ring-1 ring-stone-200 opacity-40 cursor-not-allowed select-none"
+              aria-label={`${label} — no disponible`}
+              className={`${base} opacity-20 cursor-not-allowed select-none`}
             >
-              {content}
+              <span className="font-mono text-xs text-zinc-600">{code}</span>
+              <div>
+                <p className="font-black text-sm uppercase tracking-wider text-zinc-600">{label}</p>
+                <p className="text-xs text-zinc-700 mt-0.5">{sub}</p>
+              </div>
             </div>
           );
 
           return (
             <motion.div
               key={label}
-              initial={{ opacity: 0, y: 12 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.06, duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ delay: i * 0.07, duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             >
-              <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }} transition={spring}>
+              <motion.div whileHover={{ borderColor: "#fbbf24" }} whileTap={{ scale: 0.97 }}
+                transition={{ type: "spring", stiffness: 400, damping: 28 }}
+                style={{ borderColor: "#27272a" }}
+                className="border"
+              >
                 <Link
                   href={href}
-                  aria-label={`${label} — ${desc}`}
-                  className="flex flex-col items-center gap-3 p-6 bg-white rounded-2xl ring-1 ring-stone-200
-                             hover:ring-orange-300 hover:shadow-md transition-shadow duration-200 block"
+                  aria-label={`${label} — ${sub}`}
+                  className={`${base} group hover:bg-zinc-900 transition-colors duration-150 block`}
                 >
-                  {content}
+                  <span className="font-mono text-xs text-amber-400 group-hover:text-amber-300">{code}</span>
+                  <div>
+                    <p className="font-black text-sm uppercase tracking-wider text-zinc-100">{label}</p>
+                    <p className="text-xs text-zinc-500 mt-0.5">{sub}</p>
+                  </div>
                 </Link>
               </motion.div>
             </motion.div>
           );
         })}
       </nav>
+
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        className="text-xs font-mono text-zinc-700 tracking-widest"
+      >
+        SELECT TERMINAL
+      </motion.p>
     </main>
   );
 }

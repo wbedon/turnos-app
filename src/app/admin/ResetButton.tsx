@@ -35,12 +35,12 @@ export default function ResetButton() {
         onClick={() => setShowConfirm(true)}
         whileTap={{ scale: 0.97 }}
         transition={spring}
-        className="w-full flex items-center justify-center gap-2 py-3 bg-white
-                   ring-1 ring-stone-200 rounded-2xl text-stone-500 text-sm
-                   hover:ring-red-200 hover:text-red-500 transition-colors duration-150
-                   focus:outline-none focus:ring-2 focus:ring-red-300"
+        className="w-full flex items-center justify-center gap-2 py-3 border border-zinc-800 bg-zinc-950
+                   text-zinc-600 font-mono text-xs uppercase tracking-widest
+                   hover:border-red-500/40 hover:text-red-500 transition-colors duration-150
+                   focus:outline-none focus:ring-1 focus:ring-red-500/40"
       >
-        <span aria-hidden="true">🔄</span> Reiniciar turnos del día
+        <span aria-hidden="true">🔄</span> REINICIAR TURNOS DEL DÍA
       </motion.button>
 
       <AnimatePresence>
@@ -51,7 +51,8 @@ export default function ResetButton() {
             exit={{ opacity: 0 }}
             transition={spring}
             role="status"
-            className={`text-center text-sm mt-2 font-medium ${feedback.startsWith('✓') ? 'text-green-600' : 'text-red-500'}`}
+            className={`text-center font-mono text-xs mt-2 uppercase tracking-widest
+              ${feedback.startsWith('✓') ? 'text-cyan-400' : 'text-red-400'}`}
           >
             {feedback}
           </motion.p>
@@ -65,7 +66,7 @@ export default function ResetButton() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-6"
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-6"
             onClick={(e) => { if (e.target === e.currentTarget) setShowConfirm(false) }}
           >
             <motion.div
@@ -77,16 +78,15 @@ export default function ResetButton() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.92, opacity: 0, y: 16 }}
               transition={{ type: "spring", stiffness: 360, damping: 26 }}
-              className="bg-white rounded-2xl ring-1 ring-stone-200 shadow-2xl p-6 w-full max-w-sm"
+              className="border border-zinc-700 bg-zinc-900 p-6 w-full max-w-sm"
             >
-              <div className="text-center mb-5">
-                <div className="text-4xl mb-3" aria-hidden="true">⚠️</div>
-                <h2 id="reset-modal-title" className="text-lg font-black text-stone-900 tracking-tight">
+              <div className="mb-5">
+                <p className="text-[10px] font-mono text-red-400 uppercase tracking-[0.3em] mb-3">⚠ Acción Destructiva</p>
+                <h2 id="reset-modal-title" className="text-lg font-black uppercase tracking-tight text-zinc-100">
                   ¿Reiniciar turnos?
                 </h2>
-                <p id="reset-modal-desc" className="text-stone-500 text-sm mt-2 leading-relaxed">
-                  Esto cancelará todos los turnos en espera y pondrá el contador en 0.
-                  Esta acción no se puede deshacer.
+                <p id="reset-modal-desc" className="text-zinc-500 text-xs font-mono mt-3 leading-relaxed">
+                  Esto cancelará todos los turnos en espera y pondrá el contador en 0. Esta acción no se puede deshacer.
                 </p>
               </div>
               <div className="flex gap-3">
@@ -96,11 +96,11 @@ export default function ResetButton() {
                   disabled={isPending}
                   whileTap={{ scale: 0.97 }}
                   transition={spring}
-                  className="flex-1 py-3 rounded-xl ring-1 ring-stone-200 text-stone-600
-                             hover:bg-stone-50 transition-colors disabled:opacity-50
-                             focus:outline-none focus:ring-2 focus:ring-stone-300"
+                  className="flex-1 py-3 border border-zinc-700 text-zinc-400 font-mono text-xs uppercase tracking-widest
+                             hover:border-zinc-600 hover:text-zinc-300 transition-colors disabled:opacity-50
+                             focus:outline-none focus:ring-1 focus:ring-zinc-600"
                 >
-                  Cancelar
+                  CANCELAR
                 </motion.button>
                 <motion.button
                   onClick={handleConfirm}
@@ -108,11 +108,11 @@ export default function ResetButton() {
                   aria-busy={isPending}
                   whileTap={{ scale: 0.97 }}
                   transition={spring}
-                  className="flex-1 py-3 rounded-xl bg-red-500 hover:bg-red-600
-                             text-white font-bold transition-colors disabled:opacity-50
-                             focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2"
+                  className="flex-1 py-3 bg-red-500 hover:bg-red-600
+                             text-white font-black font-mono text-xs uppercase tracking-widest transition-colors disabled:opacity-50
+                             focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 focus:ring-offset-zinc-900"
                 >
-                  {isPending ? 'Reiniciando...' : 'Sí, reiniciar'}
+                  {isPending ? '···' : 'SÍ, REINICIAR'}
                 </motion.button>
               </div>
             </motion.div>
