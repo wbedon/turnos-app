@@ -76,21 +76,15 @@ export async function markAbsent(queueId: string) {
 }
 
 export async function getQueueStats(queueId: string) {
-  const todayStart = new Date()
-  todayStart.setHours(0, 0, 0, 0)
-
-  const { count: attended } = await supabaseAdmin
+  const { data } = await supabaseAdmin
     .from('tickets')
-    .select('*', { count: 'exact', head: true })
+    .select('status')
     .eq('queue_id', queueId)
-    .eq('status', 'attended')
-    .gte('created_at', todayStart.toISOString())
+    .in('status', ['attended', 'waiting'])
 
-  const { count: waiting } = await supabaseAdmin
-    .from('tickets')
-    .select('*', { count: 'exact', head: true })
-    .eq('queue_id', queueId)
-    .eq('status', 'waiting')
-
-  return { attended: attended ?? 0, waiting: waiting ?? 0 }
+  const rows = data ?? []
+  return {
+    attended: rows.filter((r) => r.status === 'attended').length,
+    waiting:  rows.filter((r) => r.status === 'waiting').length,
+  }
 }

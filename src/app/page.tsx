@@ -44,9 +44,6 @@ export default function Home() {
         </div>
       </div>
 
-      <p className="text-xs text-gray-400">
-        Versión MVP — Fase 1 en construcción
-      </p>
     </main>
   );
 }

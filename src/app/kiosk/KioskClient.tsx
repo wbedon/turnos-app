@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useTransition } from 'react'
-import QRCodeDisplay from '@/components/QRCodeDisplay'
+import { QRCodeSVG } from 'qrcode.react'
 import { createTicket, CreateTicketResult } from './actions'
 import { Queue, Ticket } from '@/types'
 
@@ -79,7 +79,7 @@ export default function KioskClient({ queues }: Props) {
 
         {/* QR + instrucción */}
         <div className="bg-white rounded-2xl shadow p-5 flex flex-col items-center gap-3 w-full max-w-sm">
-          <QRCodeDisplay value={url} size={200} />
+          <QRCodeSVG value={url} size={200} bgColor="#ffffff" fgColor="#1f2937" level="M" includeMargin />
           <p className="text-gray-500 text-center text-sm">
             Escaneá con tu celular para seguir el turno sin quedarte esperando acá
           </p>

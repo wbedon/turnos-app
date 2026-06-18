@@ -1,3 +1,5 @@
+-- SUPERSEDED por migration 006 (usa TRUNCATE + WHERE id IS NOT NULL).
+-- Se conserva sólo como historia; la función activa en producción es la de 006.
 -- Resetea turnos del día: cancela los pendientes y vuelve current_serving a 0
 CREATE OR REPLACE FUNCTION reset_daily_queues()
 RETURNS void

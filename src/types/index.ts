@@ -1,11 +1,9 @@
-export type QueuePrefix = 'A' | 'B' | 'C' | 'D'
-
 export type TicketStatus = 'waiting' | 'called' | 'attended' | 'cancelled'
 
 export interface Queue {
   id: string
   name: string
-  prefix: QueuePrefix
+  prefix: string
   icon: string
   current_serving: number
   is_active: boolean
