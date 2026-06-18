@@ -156,7 +156,7 @@ export default function KioskClient({ queues }: Props) {
                 ◆ Terminal de Autoservicio
               </p>
               <h1 className="text-xl font-black uppercase tracking-tight text-zinc-100">
-                Seleccioná tu destino
+                ¿En qué podemos ayudarte?
               </h1>
             </header>
 
