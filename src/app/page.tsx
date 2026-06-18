@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 
 function IconKiosk() {
   return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <rect x="5" y="2" width="14" height="20" rx="1" />
       <path d="M9 7h6" />
       <path d="M9 11h6" />
@@ -16,7 +16,7 @@ function IconKiosk() {
 
 function IconDisplay() {
   return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <rect x="2" y="3" width="20" height="14" rx="1" />
       <path d="M8 21h8" />
       <path d="M12 17v4" />
@@ -26,7 +26,7 @@ function IconDisplay() {
 
 function IconAdmin() {
   return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M4 6h16" />
       <path d="M4 12h16" />
       <path d="M4 18h16" />
@@ -39,7 +39,7 @@ function IconAdmin() {
 
 function IconMobile() {
   return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <rect x="3" y="3" width="7" height="7" rx="0.5" />
       <rect x="14" y="3" width="7" height="7" rx="0.5" />
       <rect x="3" y="14" width="7" height="7" rx="0.5" />
@@ -80,7 +80,7 @@ export default function Home() {
       {/* Nav grid */}
       <nav aria-label="Pantallas del sistema" className="grid grid-cols-2 gap-3 w-full max-w-sm">
         {screens.map(({ href, label, sub, active, Icon }, i) => {
-          const base = "flex flex-col justify-between p-5 border border-zinc-800 aspect-square";
+          const base = "flex flex-col items-center justify-center gap-4 p-5 border border-zinc-800 aspect-square";
 
           if (!active) return (
             <div
@@ -90,7 +90,7 @@ export default function Home() {
               className={`${base} opacity-20 cursor-not-allowed select-none`}
             >
               <span className="text-zinc-700"><Icon /></span>
-              <div>
+              <div className="text-center">
                 <p className="font-black text-sm uppercase tracking-wider text-zinc-600">{label}</p>
                 <p className="text-xs text-zinc-700 mt-0.5">{sub}</p>
               </div>
@@ -119,7 +119,7 @@ export default function Home() {
                   <span className="text-zinc-600 group-hover:text-amber-400 transition-colors duration-150">
                     <Icon />
                   </span>
-                  <div>
+                  <div className="text-center">
                     <p className="font-black text-sm uppercase tracking-wider text-zinc-100">{label}</p>
                     <p className="text-xs text-zinc-500 mt-0.5">{sub}</p>
                   </div>
