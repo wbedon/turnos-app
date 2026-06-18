@@ -3,7 +3,12 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import InstallPrompt from "@/components/InstallPrompt";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+  weight: ["400", "500", "600", "700", "800", "900"],
+});
 
 export const metadata: Metadata = {
   title: "Sistema de Turnos",
@@ -20,7 +25,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f97316",
+  themeColor: "#ea580c",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -29,16 +34,13 @@ export const viewport: Viewport = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="es" className="h-full">
+    <html lang="es" className={`h-full ${inter.variable}`}>
       <head>
-        {/* Apple touch icon — se usa al guardar en Home Screen */}
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
       </head>
-      <body className={`${inter.className} min-h-full bg-gray-50`}>
+      <body className="min-h-full bg-stone-50 antialiased">
         {children}
         <InstallPrompt />
       </body>

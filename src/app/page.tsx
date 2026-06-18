@@ -1,56 +1,74 @@
+'use client'
+
 import Link from "next/link";
+import { motion } from "framer-motion";
+
+const spring = { type: "spring", stiffness: 400, damping: 28 } as const;
+
+const screens = [
+  { href: "/kiosk",   icon: "🖨️", label: "Kiosco",  desc: "Pantalla para tomar turno",        active: true  },
+  { href: "/display", icon: "📺", label: "Display", desc: "Pantalla TV sala de espera",        active: true  },
+  { href: "/admin",   icon: "⚙️", label: "Admin",   desc: "Panel del operador",               active: true  },
+  { href: "#",        icon: "📱", label: "Móvil",   desc: "Acceso via QR del kiosco",         active: false },
+];
 
 export default function Home() {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center gap-8 p-8 bg-orange-50">
-      <div className="text-center">
-        <div className="text-6xl mb-4">🏪</div>
-        <h1 className="text-3xl font-bold text-orange-600">Sistema de Turnos</h1>
-        <p className="text-gray-500 mt-2">Seleccioná la pantalla a usar</p>
-      </div>
+    <main className="min-h-screen flex flex-col items-center justify-center gap-10 p-8 bg-stone-50">
 
-      <nav aria-label="Pantallas del sistema" className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-lg">
-        <Link
-          href="/kiosk"
-          aria-label="Kiosco — pantalla para tomar turno"
-          className="flex flex-col items-center gap-3 p-6 bg-white rounded-2xl shadow border-2 border-transparent hover:border-orange-400 transition"
-        >
-          <span className="text-4xl" aria-hidden="true">🖨️</span>
-          <span className="font-semibold text-gray-700">Kiosco</span>
-          <span className="text-xs text-gray-400 text-center">Pantalla para tomar turno</span>
-        </Link>
+      <motion.div
+        initial={{ opacity: 0, y: -16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        className="text-center"
+      >
+        <div className="text-5xl mb-4" aria-hidden="true">🏪</div>
+        <h1 className="text-3xl font-black text-stone-900 tracking-tight">Sistema de Turnos</h1>
+        <p className="text-stone-500 mt-2 text-sm">Seleccioná la pantalla a usar</p>
+      </motion.div>
 
-        <Link
-          href="/display"
-          aria-label="Display — pantalla TV para la sala de espera"
-          className="flex flex-col items-center gap-3 p-6 bg-white rounded-2xl shadow border-2 border-transparent hover:border-orange-400 transition"
-        >
-          <span className="text-4xl" aria-hidden="true">📺</span>
-          <span className="font-semibold text-gray-700">Display</span>
-          <span className="text-xs text-gray-400 text-center">Pantalla TV sala de espera</span>
-        </Link>
+      <nav aria-label="Pantallas del sistema" className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-md">
+        {screens.map(({ href, icon, label, desc, active }, i) => {
+          const content = (
+            <>
+              <span className="text-4xl" aria-hidden="true">{icon}</span>
+              <span className="font-semibold text-stone-800 text-base">{label}</span>
+              <span className="text-xs text-stone-400 text-center leading-snug">{desc}</span>
+            </>
+          );
 
-        <Link
-          href="/admin"
-          aria-label="Admin — panel del operador"
-          className="flex flex-col items-center gap-3 p-6 bg-white rounded-2xl shadow border-2 border-transparent hover:border-orange-400 transition"
-        >
-          <span className="text-4xl" aria-hidden="true">⚙️</span>
-          <span className="font-semibold text-gray-700">Admin</span>
-          <span className="text-xs text-gray-400 text-center">Panel del operador</span>
-        </Link>
+          if (!active) return (
+            <div
+              key={label}
+              aria-disabled="true"
+              aria-label={`${label} — no disponible, accedé por QR del kiosco`}
+              className="flex flex-col items-center gap-3 p-6 bg-white rounded-2xl ring-1 ring-stone-200 opacity-40 cursor-not-allowed select-none"
+            >
+              {content}
+            </div>
+          );
 
-        <div
-          aria-disabled="true"
-          aria-label="Móvil — no disponible, accedé por QR del kiosco"
-          className="flex flex-col items-center gap-3 p-6 bg-white rounded-2xl shadow opacity-50 cursor-not-allowed"
-        >
-          <span className="text-4xl" aria-hidden="true">📱</span>
-          <span className="font-semibold text-gray-700">Móvil</span>
-          <span className="text-xs text-gray-400 text-center">Acceso via QR del kiosco</span>
-        </div>
+          return (
+            <motion.div
+              key={label}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.06, duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }} transition={spring}>
+                <Link
+                  href={href}
+                  aria-label={`${label} — ${desc}`}
+                  className="flex flex-col items-center gap-3 p-6 bg-white rounded-2xl ring-1 ring-stone-200
+                             hover:ring-orange-300 hover:shadow-md transition-shadow duration-200 block"
+                >
+                  {content}
+                </Link>
+              </motion.div>
+            </motion.div>
+          );
+        })}
       </nav>
-
     </main>
   );
 }

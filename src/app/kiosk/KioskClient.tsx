@@ -1,22 +1,18 @@
 'use client'
 
 import { useState, useEffect, useTransition } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { QRCodeSVG } from 'qrcode.react'
 import { createTicket, CreateTicketResult } from './actions'
 import { Queue, Ticket } from '@/types'
 
-interface Props {
-  queues: Queue[]
-}
-
+interface Props { queues: Queue[] }
 type Screen = 'select' | 'confirm'
-
-interface ConfirmedTicket {
-  ticket: Ticket & { queue: Queue }
-  url: string
-}
+interface ConfirmedTicket { ticket: Ticket & { queue: Queue }; url: string }
 
 const RESET_SECONDS = 30
+const spring = { type: "spring", stiffness: 400, damping: 28 } as const
+const ease   = [0.16, 1, 0.3, 1] as const
 
 export default function KioskClient({ queues }: Props) {
   const [screen, setScreen]       = useState<Screen>('select')
@@ -35,6 +31,7 @@ export default function KioskClient({ queues }: Props) {
       })
     }, 1000)
     return () => clearInterval(interval)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen])
 
   function handleReset() {
@@ -55,116 +52,189 @@ export default function KioskClient({ queues }: Props) {
     })
   }
 
-  /* ── Pantalla de confirmación ──────────────────────────────────── */
-  if (screen === 'confirm' && confirmed) {
-    const { ticket, url } = confirmed
-    return (
-      <div className="h-screen bg-orange-50 flex flex-col items-center justify-between p-6 overflow-hidden">
-
-        {/* Top */}
-        <div className="text-center pt-4">
-          <p className="text-gray-400 text-base uppercase tracking-widest">¡Tu turno es!</p>
-        </div>
-
-        {/* Número grande */}
-        <div className="bg-white rounded-3xl shadow-lg px-10 py-8 text-center border-4 border-orange-400 w-full max-w-sm">
-          <div className="text-[clamp(4rem,18vw,7rem)] font-black text-orange-500 leading-none tabular-nums">
-            {ticket.queue.prefix}-{String(ticket.number).padStart(3, '0')}
-          </div>
-          <div className="mt-3 flex items-center justify-center gap-2 text-gray-500 text-lg">
-            <span>{ticket.queue.icon}</span>
-            <span className="font-semibold">{ticket.queue.name}</span>
-          </div>
-        </div>
-
-        {/* QR + instrucción */}
-        <div className="bg-white rounded-2xl shadow p-5 flex flex-col items-center gap-3 w-full max-w-sm">
-          <div role="img" aria-label="Código QR para seguir tu turno desde el celular">
-            <QRCodeSVG value={url} size={200} bgColor="#ffffff" fgColor="#1f2937" level="M" includeMargin />
-          </div>
-          <p className="text-gray-500 text-center text-sm">
-            Escaneá con tu celular para seguir el turno sin quedarte esperando acá
-          </p>
-        </div>
-
-        {/* Footer con countdown */}
-        <button
-          onClick={handleReset}
-          className="text-gray-400 text-sm pb-2 hover:text-gray-600 transition"
-        >
-          Volver al inicio ({countdown}s)
-        </button>
-      </div>
-    )
-  }
-
-  /* ── Pantalla de selección ─────────────────────────────────────── */
   const activeQueues   = queues.filter((q) => q.is_active)
   const inactiveQueues = queues.filter((q) => !q.is_active)
 
   return (
-    <div className="h-screen bg-orange-50 flex flex-col overflow-hidden">
+    <div className="h-screen flex flex-col overflow-hidden bg-stone-50">
+      <AnimatePresence mode="wait">
 
-      {/* Header */}
-      <header className="bg-orange-500 text-white text-center py-6 px-6 shrink-0">
-        <div className="text-4xl mb-1">🏪</div>
-        <h1 className="text-2xl font-black tracking-wide">¡Bienvenido!</h1>
-        <p className="text-orange-100 text-sm mt-1">¿Qué tipo de atención necesitás?</p>
-      </header>
-
-      {/* Grid de colas — ocupa todo el espacio disponible */}
-      <main className="flex-1 grid grid-cols-2 gap-3 p-4">
-        {activeQueues.map((queue) => (
-          <button
-            key={queue.id}
-            onClick={() => handleSelectQueue(queue)}
-            disabled={isPending}
-            className="flex flex-col items-center justify-center gap-3
-                       bg-white rounded-2xl shadow-md border-2 border-transparent
-                       hover:border-orange-400 hover:shadow-xl
-                       active:scale-95 transition-all
-                       disabled:opacity-60 disabled:cursor-not-allowed"
+        {/* ── Confirmación ── */}
+        {screen === 'confirm' && confirmed && (
+          <motion.div
+            key="confirm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="h-full flex flex-col items-center justify-between p-6"
           >
-            <span className="text-[clamp(2.5rem,8vw,4rem)]">{queue.icon}</span>
-            <span className="font-black text-gray-700 text-[clamp(1rem,3vw,1.5rem)] text-center px-2">
-              {queue.name}
-            </span>
-          </button>
-        ))}
+            {/* Label top */}
+            <motion.p
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05, ...spring }}
+              className="text-stone-400 text-sm uppercase tracking-[0.15em] font-medium pt-4"
+            >
+              ¡Tu turno es!
+            </motion.p>
 
-        {inactiveQueues.map((queue) => (
-          <div
-            key={queue.id}
-            aria-disabled="true"
-            aria-label={`${queue.name} — no disponible`}
-            className="flex flex-col items-center justify-center gap-3
-                       bg-white rounded-2xl border-2 border-dashed border-gray-100 opacity-40"
+            {/* Número */}
+            <motion.div
+              initial={{ scale: 0.75, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.1, type: "spring", stiffness: 260, damping: 20 }}
+              className="bg-white rounded-3xl ring-1 ring-stone-200 shadow-lg px-10 py-8 text-center w-full max-w-sm"
+            >
+              <div
+                className="font-black text-orange-500 leading-none tabular-nums"
+                style={{ fontSize: 'clamp(4rem, 18vw, 7rem)' }}
+              >
+                {confirmed.ticket.queue.prefix}-{String(confirmed.ticket.number).padStart(3, '0')}
+              </div>
+              <div className="mt-3 flex items-center justify-center gap-2 text-stone-500 text-base">
+                <span aria-hidden="true">{confirmed.ticket.queue.icon}</span>
+                <span className="font-semibold">{confirmed.ticket.queue.name}</span>
+              </div>
+            </motion.div>
+
+            {/* QR */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.4, ease }}
+              className="bg-white rounded-2xl ring-1 ring-stone-200 p-5 flex flex-col items-center gap-3 w-full max-w-sm"
+            >
+              <div role="img" aria-label="Código QR para seguir tu turno desde el celular">
+                <QRCodeSVG
+                  value={confirmed.url}
+                  size={180}
+                  bgColor="#ffffff"
+                  fgColor="#1c1917"
+                  level="M"
+                  includeMargin
+                />
+              </div>
+              <p className="text-stone-500 text-center text-sm leading-snug">
+                Escaneá con tu celular para seguir el turno sin quedarte esperando acá
+              </p>
+            </motion.div>
+
+            {/* Countdown */}
+            <motion.button
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3, ...spring }}
+              onClick={handleReset}
+              whileTap={{ scale: 0.97 }}
+              className="text-stone-400 text-sm pb-2 hover:text-stone-600 transition-colors"
+            >
+              Volver al inicio ({countdown}s)
+            </motion.button>
+          </motion.div>
+        )}
+
+        {/* ── Selección ── */}
+        {screen === 'select' && (
+          <motion.div
+            key="select"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="h-full flex flex-col"
           >
-            <span className="text-[clamp(2.5rem,8vw,4rem)] grayscale">{queue.icon}</span>
-            <span className="font-bold text-gray-400 text-base text-center px-2">{queue.name}</span>
-            <span className="text-xs text-gray-300 uppercase tracking-wider">No disponible</span>
-          </div>
-        ))}
-      </main>
+            {/* Header */}
+            <header className="bg-orange-600 text-white text-center py-6 px-6 shrink-0">
+              <div className="text-4xl mb-1" aria-hidden="true">🏪</div>
+              <h1 className="text-2xl font-black tracking-tight">¡Bienvenido!</h1>
+              <p className="text-orange-100 text-sm mt-1">¿Qué tipo de atención necesitás?</p>
+            </header>
+
+            {/* Grid de colas */}
+            <main className="flex-1 grid grid-cols-2 gap-3 p-4">
+              {activeQueues.map((queue, i) => (
+                <motion.button
+                  key={queue.id}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.06, duration: 0.35, ease }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => handleSelectQueue(queue)}
+                  disabled={isPending}
+                  className="flex flex-col items-center justify-center gap-3
+                             bg-white rounded-2xl ring-1 ring-stone-200 shadow-sm
+                             hover:ring-orange-300 hover:shadow-md
+                             active:bg-orange-50 transition-all duration-150
+                             disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  <span className="text-[clamp(2.5rem,8vw,4rem)]" aria-hidden="true">{queue.icon}</span>
+                  <span className="font-bold text-stone-800 text-[clamp(0.95rem,3vw,1.4rem)] text-center px-2 leading-tight">
+                    {queue.name}
+                  </span>
+                </motion.button>
+              ))}
+
+              {inactiveQueues.map((queue) => (
+                <div
+                  key={queue.id}
+                  aria-disabled="true"
+                  aria-label={`${queue.name} — no disponible`}
+                  className="flex flex-col items-center justify-center gap-3
+                             bg-white rounded-2xl ring-1 ring-dashed ring-stone-200 opacity-35 select-none"
+                >
+                  <span className="text-[clamp(2.5rem,8vw,4rem)] grayscale" aria-hidden="true">{queue.icon}</span>
+                  <span className="font-semibold text-stone-400 text-base text-center px-2">{queue.name}</span>
+                  <span className="text-xs text-stone-300 uppercase tracking-wider">No disponible</span>
+                </div>
+              ))}
+            </main>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Spinner de carga */}
-      {isPending && (
-        <div role="status" aria-label="Generando tu turno" className="absolute inset-0 bg-orange-50/80 flex items-center justify-center">
-          <div className="flex items-center gap-3 text-orange-500 text-lg font-semibold">
-            <svg className="animate-spin h-6 w-6" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-            </svg>
-            Generando tu turno...
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {isPending && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            role="status"
+            aria-label="Generando tu turno"
+            className="absolute inset-0 bg-stone-50/80 backdrop-blur-sm flex items-center justify-center"
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={spring}
+              className="flex items-center gap-3 bg-white rounded-2xl ring-1 ring-stone-200 shadow-lg px-6 py-4 text-orange-600 font-semibold"
+            >
+              <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+              </svg>
+              Generando tu turno...
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {error && (
-        <div role="alert" className="absolute bottom-6 left-4 right-4 bg-red-50 border border-red-200 rounded-xl p-4 text-red-600 text-sm text-center">
-          Hubo un error al generar el turno. Intentá de nuevo.
-        </div>
-      )}
+      {/* Error */}
+      <AnimatePresence>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 16 }}
+            transition={spring}
+            role="alert"
+            className="absolute bottom-6 left-4 right-4 bg-red-50 border border-red-200 rounded-2xl p-4 text-red-600 text-sm text-center shadow-md"
+          >
+            Hubo un error al generar el turno. Intentá de nuevo.
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
