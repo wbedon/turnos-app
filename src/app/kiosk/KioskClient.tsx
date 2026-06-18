@@ -184,9 +184,6 @@ export default function KioskClient({ queues }: Props) {
                   <span className="font-bold text-zinc-100 text-[clamp(0.85rem,3vw,1.3rem)] text-center px-2 leading-tight uppercase tracking-wide">
                     {queue.name}
                   </span>
-                  <span className="text-xs font-mono text-amber-400 uppercase tracking-widest">
-                    {queue.prefix}
-                  </span>
                 </motion.button>
               ))}
 

@@ -4,10 +4,10 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 
 const screens = [
-  { href: "/kiosk",   label: "KIOSCO",   sub: "Sacar turno",          active: true,  code: "K" },
-  { href: "/display", label: "DISPLAY",  sub: "Pantalla sala espera", active: true,  code: "D" },
-  { href: "/admin",   label: "ADMIN",    sub: "Panel operador",       active: true,  code: "A" },
-  { href: "#",        label: "MÓVIL",    sub: "Acceso por QR",        active: false, code: "M" },
+  { href: "/kiosk",   label: "KIOSCO",   sub: "Sacar turno",          active: true  },
+  { href: "/display", label: "DISPLAY",  sub: "Pantalla sala espera", active: true  },
+  { href: "/admin",   label: "ADMIN",    sub: "Panel operador",       active: true  },
+  { href: "#",        label: "MÓVIL",    sub: "Acceso por QR",        active: false },
 ];
 
 export default function Home() {
@@ -33,7 +33,7 @@ export default function Home() {
       {/* Nav grid */}
       <nav aria-label="Pantallas del sistema" className="grid grid-cols-2 gap-3 w-full max-w-sm">
         {screens.map(({ href, label, sub, active, code }, i) => {
-          const base = "flex flex-col justify-between p-5 border border-zinc-800 aspect-square";
+            const base = "flex flex-col justify-end p-5 border border-zinc-800 aspect-square";
 
           if (!active) return (
             <div
@@ -42,11 +42,8 @@ export default function Home() {
               aria-label={`${label} — no disponible`}
               className={`${base} opacity-20 cursor-not-allowed select-none`}
             >
-              <span className="font-mono text-xs text-zinc-600">{code}</span>
-              <div>
-                <p className="font-black text-sm uppercase tracking-wider text-zinc-600">{label}</p>
-                <p className="text-xs text-zinc-700 mt-0.5">{sub}</p>
-              </div>
+              <p className="font-black text-sm uppercase tracking-wider text-zinc-600">{label}</p>
+              <p className="text-xs text-zinc-700 mt-0.5">{sub}</p>
             </div>
           );
 
@@ -67,11 +64,8 @@ export default function Home() {
                   aria-label={`${label} — ${sub}`}
                   className={`${base} group hover:bg-zinc-900 transition-colors duration-150 block`}
                 >
-                  <span className="font-mono text-xs text-amber-400 group-hover:text-amber-300">{code}</span>
-                  <div>
-                    <p className="font-black text-sm uppercase tracking-wider text-zinc-100">{label}</p>
-                    <p className="text-xs text-zinc-500 mt-0.5">{sub}</p>
-                  </div>
+                  <p className="font-black text-sm uppercase tracking-wider text-zinc-100">{label}</p>
+                  <p className="text-xs text-zinc-500 mt-0.5">{sub}</p>
                 </Link>
               </motion.div>
             </motion.div>
