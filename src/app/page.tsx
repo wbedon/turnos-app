@@ -32,7 +32,7 @@ export default function Home() {
 
       {/* Nav grid */}
       <nav aria-label="Pantallas del sistema" className="grid grid-cols-2 gap-3 w-full max-w-sm">
-        {screens.map(({ href, label, sub, active, code }, i) => {
+        {screens.map(({ href, label, sub, active }, i) => {
             const base = "flex flex-col justify-end p-5 border border-zinc-800 aspect-square";
 
           if (!active) return (
