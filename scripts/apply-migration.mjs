@@ -18,7 +18,11 @@ if (!ACCESS_TOKEN) {
   process.exit(1);
 }
 
-const migrationFile = process.argv[2] ?? './supabase/migrations/005_fix_reset_fn.sql';
+const migrationFile = process.argv[2];
+if (!migrationFile) {
+  console.error('Uso: node scripts/apply-migration.mjs <ruta-al-sql>');
+  process.exit(1);
+}
 const sql = readFileSync(migrationFile, 'utf8');
 console.log('Aplicando:', migrationFile);
 
