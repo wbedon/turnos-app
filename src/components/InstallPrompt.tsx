@@ -31,10 +31,14 @@ export default function InstallPrompt() {
   }
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-50 flex items-center gap-3
+    <div
+      role="region"
+      aria-label="Sugerencia de instalación"
+      className="fixed bottom-4 left-4 right-4 z-50 flex items-center gap-3
                     bg-white border border-orange-200 rounded-2xl shadow-xl px-4 py-3
-                    animate-in slide-in-from-bottom-4 duration-300">
-      <span className="text-2xl shrink-0">📲</span>
+                    animate-in slide-in-from-bottom-4 duration-300"
+    >
+      <span className="text-2xl shrink-0" aria-hidden="true">📲</span>
       <div className="flex-1 min-w-0">
         <p className="font-semibold text-gray-800 text-sm">Instalá la app</p>
         <p className="text-xs text-gray-500 truncate">Accedé rápido desde tu pantalla de inicio</p>
@@ -42,6 +46,7 @@ export default function InstallPrompt() {
       <div className="flex gap-2 shrink-0">
         <button
           onClick={() => setDismissed(true)}
+          aria-label="Cerrar sugerencia de instalación"
           className="text-gray-400 text-xs px-2 py-1 hover:text-gray-600"
         >
           Ahora no

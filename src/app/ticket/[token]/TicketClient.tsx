@@ -145,7 +145,7 @@ export default function TicketClient({ ticket: initialTicket, waitingAhead: init
 
         {/* Tiempo estimado */}
         <Card className="flex items-center gap-4">
-          <span className="text-3xl">⏱️</span>
+          <span className="text-3xl" aria-hidden="true">⏱️</span>
           <div>
             <p className="text-xs text-gray-400 uppercase tracking-wider">Tiempo estimado</p>
             {estimatedMinutes > 0 ? (
@@ -255,7 +255,7 @@ function StatusScreen({
   const text = color === 'green' ? 'text-green-700' : 'text-gray-500'
   return (
     <div className={`min-h-screen ${bg} flex flex-col items-center justify-center gap-4 p-8 text-center`}>
-      <div className="text-6xl">{icon}</div>
+      <div className="text-6xl" aria-hidden="true">{icon}</div>
       <h1 className={`text-2xl font-bold ${text}`}>{title}</h1>
       <p className="text-gray-400">{subtitle}</p>
     </div>

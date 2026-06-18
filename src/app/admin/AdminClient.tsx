@@ -98,7 +98,7 @@ export default function AdminClient({ queues, userEmail }: Props) {
       {/* Header */}
       <header className="bg-orange-500 text-white px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <span className="text-2xl">⚙️</span>
+          <span className="text-2xl" aria-hidden="true">⚙️</span>
           <div>
             <p className="font-bold text-lg leading-tight">Panel de Operador</p>
             <p className="text-xs opacity-75">{userEmail}</p>
@@ -147,8 +147,8 @@ export default function AdminClient({ queues, userEmail }: Props) {
             <div className="text-3xl text-gray-500 font-bold">— Sin llamados —</div>
           )}
           <div className="mt-3 flex justify-center gap-6 text-sm text-gray-400">
-            <span>✅ Atendidos hoy: <strong className="text-gray-700">{stats.attended}</strong></span>
-            <span>⏳ En espera: <strong className="text-gray-700">{stats.waiting}</strong></span>
+            <span><span aria-hidden="true">✅ </span>Atendidos hoy: <strong className="text-gray-700">{stats.attended}</strong></span>
+            <span><span aria-hidden="true">⏳ </span>En espera: <strong className="text-gray-700">{stats.waiting}</strong></span>
           </div>
         </div>
 
@@ -185,7 +185,7 @@ export default function AdminClient({ queues, userEmail }: Props) {
             className="flex flex-col items-center gap-1 py-4 bg-white rounded-2xl shadow-sm border border-gray-100
                        hover:border-orange-200 active:scale-95 transition-all disabled:opacity-40 text-gray-600"
           >
-            <span className="text-2xl">🔁</span>
+            <span className="text-2xl" aria-hidden="true">🔁</span>
             <span className="text-sm font-semibold">Reiterar llamado</span>
           </button>
 
@@ -195,7 +195,7 @@ export default function AdminClient({ queues, userEmail }: Props) {
             className="flex flex-col items-center gap-1 py-4 bg-white rounded-2xl shadow-sm border border-gray-100
                        hover:border-red-200 active:scale-95 transition-all disabled:opacity-40 text-gray-600"
           >
-            <span className="text-2xl">⏭️</span>
+            <span className="text-2xl" aria-hidden="true">⏭️</span>
             <span className="text-sm font-semibold">Marcar ausente</span>
           </button>
         </div>

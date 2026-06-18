@@ -1,6 +1,6 @@
 export default function TicketLoading() {
   return (
-    <div className="min-h-screen bg-orange-50 flex flex-col animate-pulse">
+    <div role="status" aria-label="Cargando información del turno" aria-busy="true" className="min-h-screen bg-orange-50 flex flex-col animate-pulse">
       {/* Header */}
       <div className="bg-orange-300 px-6 py-5 text-center space-y-2">
         <div className="h-3 w-20 bg-orange-200 rounded-full mx-auto" />
