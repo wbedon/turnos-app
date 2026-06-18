@@ -19,8 +19,8 @@ const kiosk = await ctx.newPage();
 await kiosk.goto(`${BASE}/kiosk`);
 await kiosk.waitForLoadState('networkidle');
 await kiosk.locator('text=Caja').first().click();
-await kiosk.waitForSelector('text=TU TURNO', { timeout: 10000 }).catch(() => {});
-await kiosk.waitForTimeout(1500);
+await kiosk.waitForSelector('text=Boarding Pass', { timeout: 10000 }).catch(() => {});
+await kiosk.waitForTimeout(800);
 const { data: [ticket] = [] } = await sb.from('tickets').select('token,number').order('created_at', { ascending: false }).limit(1);
 ticket ? ok(`Turno emitido — A-${String(ticket.number).padStart(3,'0')}`) : fail('Sin turno en DB');
 
@@ -29,8 +29,8 @@ console.log('2 — Ticket');
 const tPage = await ctx.newPage();
 await tPage.goto(`${BASE}/ticket/${ticket?.token}`);
 await tPage.waitForLoadState('networkidle');
-await tPage.waitForTimeout(1000);
-const hasNum = await tPage.locator(`text=A-${String(ticket?.number).padStart(3,'0')}`).isVisible().catch(() => false);
+const numText = `A-${String(ticket?.number).padStart(3,'0')}`;
+const hasNum = await tPage.waitForSelector(`text=${numText}`, { timeout: 8000 }).then(() => true).catch(() => false);
 hasNum ? ok('Página del ticket carga') : fail('Número no visible');
 
 // 3. Admin
