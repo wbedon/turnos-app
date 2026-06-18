@@ -81,8 +81,8 @@ export default function TicketClient({ ticket: initialTicket, waitingAhead: init
 
   if (isCalled) {
     return (
-      <div className="min-h-screen bg-orange-500 flex flex-col items-center justify-center gap-6 p-8 text-white">
-        <div className="text-7xl animate-bounce">🔔</div>
+      <div role="alert" className="min-h-screen bg-orange-500 flex flex-col items-center justify-center gap-6 p-8 text-white">
+        <div className="text-7xl animate-bounce" aria-hidden="true">🔔</div>
         <h1 className="text-4xl font-black text-center">¡Es tu turno!</h1>
         <div className="bg-white/20 rounded-3xl px-12 py-6 text-center">
           <div className="text-6xl font-black tabular-nums">
@@ -164,7 +164,7 @@ export default function TicketClient({ ticket: initialTicket, waitingAhead: init
           <button
             onClick={handleCancel}
             disabled={isPending}
-            className="text-sm text-gray-400 underline hover:text-gray-600 transition disabled:opacity-50"
+            className="text-sm text-gray-500 underline hover:text-gray-700 transition disabled:opacity-50"
           >
             {isPending ? 'Cancelando...' : '¿Ya no venís? Cancelar turno'}
           </button>
@@ -190,6 +190,9 @@ function ProgressDots({ current, mine, prefix }: { current: number; mine: number
   }
 
   const gap = mine - current
+  const srText = gap === 0
+    ? `Atendiendo tu turno ${prefix}-${String(mine).padStart(3,'0')}`
+    : `Tu turno ${prefix}-${String(mine).padStart(3,'0')} — faltan ${gap} turno${gap === 1 ? '' : 's'}`
   const dots: { number: number; isMine: boolean }[] = []
 
   if (gap <= 5) {
@@ -203,12 +206,14 @@ function ProgressDots({ current, mine, prefix }: { current: number; mine: number
   }
 
   return (
-    <div className="flex items-center gap-1 flex-wrap">
+    <div>
+      <p className="sr-only" aria-live="polite">{srText}</p>
+      <div className="flex items-center gap-1 flex-wrap" aria-hidden="true">
       {dots.map((dot, i) => {
         const showEllipsis = gap > 5 && i === 1
         return (
           <div key={dot.number} className="flex items-center gap-1">
-            {showEllipsis && <span className="text-gray-300 text-sm mx-1">···</span>}
+            {showEllipsis && <span className="text-gray-500 text-sm mx-1" aria-hidden="true">···</span>}
             <div
               className={`flex flex-col items-center gap-1 ${dot.isMine ? 'scale-110' : ''}`}
             >
@@ -233,6 +238,7 @@ function ProgressDots({ current, mine, prefix }: { current: number; mine: number
           </div>
         )
       })}
+      </div>
     </div>
   )
 }

@@ -95,14 +95,15 @@ export default function DisplayClient({ initialQueues, initialWaiting }: Props) 
           <div className="font-mono font-bold tabular-nums text-[clamp(1.4rem,3vw,2.5rem)]">
             {timeStr}
           </div>
-          <div className="text-xs opacity-75 capitalize">{dateStr}</div>
+          <div className="text-xs text-orange-100 capitalize">{dateStr}</div>
         </div>
       </header>
 
       {/* Columnas */}
       <main
+        aria-label="Panel de turnos en atención"
         className="flex-1 grid gap-2 p-2 min-h-0"
-        style={{ gridTemplateColumns: `repeat(${activeQueues.length}, 1fr)` }}
+        style={{ gridTemplateColumns: `repeat(auto-fit, minmax(min(240px, 100%), 1fr))` }}
       >
         {activeQueues.length === 0 ? (
           <div className="col-span-full flex items-center justify-center text-gray-700 text-xl">
@@ -123,14 +124,14 @@ export default function DisplayClient({ initialQueues, initialWaiting }: Props) 
               >
                 {/* Nombre de la cola */}
                 <div className="bg-gray-800 px-4 py-3 flex items-center gap-3 shrink-0">
-                  <span className="text-[clamp(1.2rem,3vw,2rem)]">{queue.icon}</span>
-                  <span className="font-bold text-gray-100 uppercase tracking-wider text-[clamp(0.8rem,1.8vw,1.3rem)]">
+                  <span className="text-[clamp(1.2rem,3vw,2rem)]" aria-hidden="true">{queue.icon}</span>
+                  <h2 className="font-bold text-gray-100 uppercase tracking-wider text-[clamp(0.8rem,1.8vw,1.3rem)]">
                     {queue.name}
-                  </span>
+                  </h2>
                 </div>
 
                 {/* Número en atención — el más importante, usa el espacio disponible */}
-                <div className="flex-1 flex items-center justify-center min-h-0 py-4">
+                <div aria-live="polite" aria-label={`Atendiendo: ${queue.prefix}-${String(queue.current_serving).padStart(3,'0')}`} className="flex-1 flex items-center justify-center min-h-0 py-4">
                   {queue.current_serving > 0 ? (
                     <div className={`text-center transition-transform duration-300 ${isHighlighted ? 'scale-110' : ''}`}>
                       <div

@@ -12,19 +12,21 @@ export default function LoginForm() {
         <div className="text-center mb-8">
           <div className="text-5xl mb-3">⚙️</div>
           <h1 className="text-2xl font-bold text-gray-800">Panel de Operador</h1>
-          <p className="text-gray-400 text-sm mt-1">Ingresá con tu cuenta de staff</p>
+          <p className="text-gray-500 text-sm mt-1">Ingresá con tu cuenta de staff</p>
         </div>
 
         <form action={action} className="flex flex-col gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
               Email
             </label>
             <input
+              id="email"
               type="email"
               name="email"
               required
               autoComplete="email"
+              aria-describedby={state?.error ? 'login-error' : undefined}
               className="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-800
                          focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
               placeholder="operador@ejemplo.com"
@@ -32,14 +34,16 @@ export default function LoginForm() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
               Contraseña
             </label>
             <input
+              id="password"
               type="password"
               name="password"
               required
               autoComplete="current-password"
+              aria-describedby={state?.error ? 'login-error' : undefined}
               className="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-800
                          focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
               placeholder="••••••••"
@@ -47,7 +51,7 @@ export default function LoginForm() {
           </div>
 
           {state?.error && (
-            <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-red-600 text-sm">
+            <div id="login-error" role="alert" className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-red-600 text-sm">
               {state.error}
             </div>
           )}

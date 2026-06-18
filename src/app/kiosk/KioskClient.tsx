@@ -79,7 +79,9 @@ export default function KioskClient({ queues }: Props) {
 
         {/* QR + instrucción */}
         <div className="bg-white rounded-2xl shadow p-5 flex flex-col items-center gap-3 w-full max-w-sm">
-          <QRCodeSVG value={url} size={200} bgColor="#ffffff" fgColor="#1f2937" level="M" includeMargin />
+          <div role="img" aria-label="Código QR para seguir tu turno desde el celular">
+            <QRCodeSVG value={url} size={200} bgColor="#ffffff" fgColor="#1f2937" level="M" includeMargin />
+          </div>
           <p className="text-gray-500 text-center text-sm">
             Escaneá con tu celular para seguir el turno sin quedarte esperando acá
           </p>
@@ -133,6 +135,8 @@ export default function KioskClient({ queues }: Props) {
         {inactiveQueues.map((queue) => (
           <div
             key={queue.id}
+            aria-disabled="true"
+            aria-label={`${queue.name} — no disponible`}
             className="flex flex-col items-center justify-center gap-3
                        bg-white rounded-2xl border-2 border-dashed border-gray-100 opacity-40"
           >
@@ -145,9 +149,9 @@ export default function KioskClient({ queues }: Props) {
 
       {/* Spinner de carga */}
       {isPending && (
-        <div className="absolute inset-0 bg-orange-50/80 flex items-center justify-center">
+        <div role="status" aria-label="Generando tu turno" className="absolute inset-0 bg-orange-50/80 flex items-center justify-center">
           <div className="flex items-center gap-3 text-orange-500 text-lg font-semibold">
-            <svg className="animate-spin h-6 w-6" viewBox="0 0 24 24" fill="none">
+            <svg className="animate-spin h-6 w-6" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
             </svg>
@@ -157,7 +161,7 @@ export default function KioskClient({ queues }: Props) {
       )}
 
       {error && (
-        <div className="absolute bottom-6 left-4 right-4 bg-red-50 border border-red-200 rounded-xl p-4 text-red-600 text-sm text-center">
+        <div role="alert" className="absolute bottom-6 left-4 right-4 bg-red-50 border border-red-200 rounded-xl p-4 text-red-600 text-sm text-center">
           Hubo un error al generar el turno. Intentá de nuevo.
         </div>
       )}

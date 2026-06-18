@@ -73,7 +73,7 @@ export default function PushSubscriber({ ticketId }: Props) {
 
   if (state === 'active') {
     return (
-      <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-2xl p-4">
+      <div role="status" className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-2xl p-4">
         <span className="text-2xl">🔔</span>
         <div>
           <p className="font-semibold text-green-700 text-sm">Alertas activas</p>
@@ -100,6 +100,8 @@ export default function PushSubscriber({ ticketId }: Props) {
     <button
       onClick={handleSubscribe}
       disabled={state === 'subscribing'}
+      aria-busy={state === 'subscribing'}
+      aria-label={state === 'subscribing' ? 'Activando alertas de turno…' : 'Activar alertas de turno'}
       className="w-full flex items-center gap-3 bg-orange-50 border-2 border-dashed border-orange-200
                  rounded-2xl p-4 hover:border-orange-400 hover:bg-orange-100
                  transition-all disabled:opacity-60 text-left"

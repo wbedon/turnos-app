@@ -122,6 +122,7 @@ export default function AdminClient({ queues, userEmail }: Props) {
               <button
                 key={q.id}
                 onClick={() => setSelectedId(q.id)}
+                aria-pressed={selectedId === q.id}
                 className={`flex items-center gap-2 px-4 py-3 rounded-xl border-2 transition font-semibold text-sm
                   ${selectedId === q.id
                     ? 'border-orange-400 bg-orange-50 text-orange-700'
@@ -143,7 +144,7 @@ export default function AdminClient({ queues, userEmail }: Props) {
               {selected?.prefix}-{String(serving).padStart(3, '0')}
             </div>
           ) : (
-            <div className="text-3xl text-gray-300 font-bold">— Sin llamados —</div>
+            <div className="text-3xl text-gray-500 font-bold">— Sin llamados —</div>
           )}
           <div className="mt-3 flex justify-center gap-6 text-sm text-gray-400">
             <span>✅ Atendidos hoy: <strong className="text-gray-700">{stats.attended}</strong></span>
@@ -153,8 +154,12 @@ export default function AdminClient({ queues, userEmail }: Props) {
 
         {/* Feedback */}
         {feedback && (
-          <div className={`text-center py-3 px-4 rounded-xl text-sm font-medium transition-all
-            ${feedback.ok ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
+          <div
+            role="status"
+            aria-live="polite"
+            className={`text-center py-3 px-4 rounded-xl text-sm font-medium transition-all
+            ${feedback.ok ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}
+          >
             {feedback.ok ? '✓' : '✗'} {feedback.msg}
           </div>
         )}
@@ -163,6 +168,8 @@ export default function AdminClient({ queues, userEmail }: Props) {
         <button
           onClick={handleCallNext}
           disabled={isPending}
+          aria-busy={isPending}
+          aria-label={isPending ? 'Llamando turno siguiente…' : 'Llamar siguiente turno'}
           className="w-full bg-orange-500 hover:bg-orange-600 active:scale-95
                      text-white text-2xl font-black py-7 rounded-2xl shadow-lg
                      transition-all disabled:opacity-60 disabled:cursor-not-allowed"
