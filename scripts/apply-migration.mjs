@@ -18,7 +18,9 @@ if (!ACCESS_TOKEN) {
   process.exit(1);
 }
 
-const sql = readFileSync('./supabase/migrations/004_fix_ticket_numbering.sql', 'utf8');
+const migrationFile = process.argv[2] ?? './supabase/migrations/005_fix_reset_fn.sql';
+const sql = readFileSync(migrationFile, 'utf8');
+console.log('Aplicando:', migrationFile);
 
 const resp = await fetch(
   `https://api.supabase.com/v1/projects/${PROJECT_REF}/database/query`,
