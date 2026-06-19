@@ -1,11 +1,22 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { login } from './actions'
 
+const DEMO = { email: 'admin@turnos.com', password: 'turnos2024!' }
+
 export default function LoginForm() {
   const [state, action, pending] = useActionState(login, null)
+  const [filled, setFilled] = useState(false)
+  const emailRef    = useRef<HTMLInputElement>(null)
+  const passwordRef = useRef<HTMLInputElement>(null)
+
+  function fillDemo() {
+    if (emailRef.current)    emailRef.current.value    = DEMO.email
+    if (passwordRef.current) passwordRef.current.value = DEMO.password
+    setFilled(true)
+  }
 
   return (
     <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-6">
@@ -25,8 +36,19 @@ export default function LoginForm() {
         {/* Demo credentials */}
         <div className="mb-6 border border-zinc-700 border-dashed bg-zinc-950 px-4 py-3">
           <p className="text-[10px] font-mono text-zinc-600 uppercase tracking-[0.25em] mb-2">Demo · Credenciales de prueba</p>
-          <p className="text-xs font-mono text-zinc-400">admin@turnos.com</p>
-          <p className="text-xs font-mono text-zinc-400">turnos2024!</p>
+          <p className="text-xs font-mono text-zinc-400">{DEMO.email}</p>
+          <p className="text-xs font-mono text-zinc-400">{DEMO.password}</p>
+          <motion.button
+            type="button"
+            onClick={fillDemo}
+            whileTap={{ scale: 0.96 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+            className="mt-3 w-full border border-zinc-700 hover:border-amber-400 bg-zinc-900 hover:bg-zinc-800
+                       text-zinc-500 hover:text-amber-400 text-[11px] font-mono uppercase tracking-widest
+                       py-2 transition-colors duration-150"
+          >
+            {filled ? '✓ Completado' : '↓ Usar credenciales demo'}
+          </motion.button>
         </div>
 
         <form action={action} className="flex flex-col gap-5">
@@ -35,6 +57,7 @@ export default function LoginForm() {
               Email
             </label>
             <input
+              ref={emailRef}
               id="email"
               type="email"
               name="email"
@@ -53,6 +76,7 @@ export default function LoginForm() {
               Contraseña
             </label>
             <input
+              ref={passwordRef}
               id="password"
               type="password"
               name="password"
