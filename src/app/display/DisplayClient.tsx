@@ -108,7 +108,7 @@ export default function DisplayClient({ initialQueues, initialWaiting }: Props) 
           activeQueues.map((queue, i) => {
             const info          = waiting.get(queue.id)
             const isHighlighted = highlighted.has(queue.id)
-            const numFontSize   = `clamp(2rem, ${(55 / Math.max(activeQueues.length, 1)).toFixed(1)}vw, 9rem)`
+            const numFontSize   = `clamp(1.5rem, ${(28 / Math.max(activeQueues.length, 1)).toFixed(1)}vw, 9rem)`
 
             return (
               <motion.div
@@ -140,7 +140,7 @@ export default function DisplayClient({ initialQueues, initialWaiting }: Props) 
                   aria-label={queue.current_serving > 0
                     ? `Atendiendo: ${queue.prefix}-${String(queue.current_serving).padStart(3,'0')}`
                     : `${queue.name}: sin llamados aún`}
-                  className="flex-1 flex items-center justify-center min-h-0 py-6 overflow-hidden"
+                  className="flex-1 flex items-center justify-center min-h-0 py-6 px-2"
                 >
                   {queue.current_serving > 0 ? (
                     <div className="text-center">
