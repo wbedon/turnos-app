@@ -108,6 +108,7 @@ export default function DisplayClient({ initialQueues, initialWaiting }: Props) 
           activeQueues.map((queue, i) => {
             const info          = waiting.get(queue.id)
             const isHighlighted = highlighted.has(queue.id)
+            const numFontSize   = `clamp(2rem, ${(55 / Math.max(activeQueues.length, 1)).toFixed(1)}vw, 9rem)`
 
             return (
               <motion.div
@@ -151,9 +152,9 @@ export default function DisplayClient({ initialQueues, initialWaiting }: Props) 
                           animate={{ y: 0, opacity: 1 }}
                           exit={{ y: 60, opacity: 0 }}
                           transition={spring}
-                          className={`font-mono font-bold tabular-nums leading-none
+                          className={`font-mono font-bold tabular-nums leading-none whitespace-nowrap
                             ${isHighlighted ? 'text-amber-300' : 'text-amber-400'}`}
-                          style={{ fontSize: 'clamp(4rem, 12vw, 10rem)' }}
+                          style={{ fontSize: numFontSize }}
                         >
                           {queue.prefix}-{String(queue.current_serving).padStart(3, '0')}
                         </motion.div>
