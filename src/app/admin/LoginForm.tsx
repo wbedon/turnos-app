@@ -22,6 +22,13 @@ export default function LoginForm() {
           <div className="mt-3 h-px w-8 bg-amber-400" />
         </div>
 
+        {/* Demo credentials */}
+        <div className="mb-6 border border-zinc-700 border-dashed bg-zinc-950 px-4 py-3">
+          <p className="text-[10px] font-mono text-zinc-600 uppercase tracking-[0.25em] mb-2">Demo · Credenciales de prueba</p>
+          <p className="text-xs font-mono text-zinc-400">admin@turnos.com</p>
+          <p className="text-xs font-mono text-zinc-400">turnos2024!</p>
+        </div>
+
         <form action={action} className="flex flex-col gap-5">
           <div>
             <label htmlFor="email" className="block text-xs font-mono text-zinc-500 uppercase tracking-widest mb-2">
