@@ -190,9 +190,6 @@ export default function KioskClient({ queues }: Props) {
                 <p className="font-black text-zinc-400 uppercase tracking-widest text-xl">
                   {isCancelling ? 'CANCELANDO...' : 'CANCELAR'}
                 </p>
-                <p className="text-xs font-mono text-zinc-600 uppercase tracking-widest mt-1.5">
-                  Me equivoqué · liberar este turno
-                </p>
               </motion.button>
             </motion.div>
           </motion.div>
