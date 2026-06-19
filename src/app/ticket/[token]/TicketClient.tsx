@@ -6,6 +6,12 @@ import { supabase } from '@/lib/supabase'
 import { Queue, Ticket, TicketStatus, QueueTiming } from '@/types'
 import { cancelTicket } from './actions'
 import PushSubscriber from '@/components/PushSubscriber'
+import {
+  StatusPill,
+  CalledStatusScreen,
+  AttendedStatusScreen,
+  CancelledStatusScreen,
+} from '@/components/TicketStatus'
 
 interface Props {
   ticket: Ticket & { queue: Queue }
@@ -71,15 +77,19 @@ export default function TicketClient({ ticket: initialTicket, waitingAhead: init
     <AnimatePresence mode="wait">
 
       {isCancelled && (
-        <EndScreen key="cancelled" icon="✕" title="TURNO CANCELADO" sub="Tu turno fue cancelado." color="zinc" />
+        <CancelledStatusScreen key="cancelled" ticketLabel={`${queue.prefix}-${pad(myNumber)}`} />
       )}
 
       {!isCancelled && isAttended && (
-        <EndScreen key="attended" icon="✓" title="¡ATENDIDO!" sub="Gracias por tu visita. ¡Hasta pronto!" color="cyan" />
+        <AttendedStatusScreen key="attended" ticketLabel={`${queue.prefix}-${pad(myNumber)}`} />
       )}
 
       {!isCancelled && !isAttended && isCalled && (
-        <CalledScreen key="called" queue={queue} myNumber={myNumber} />
+        <CalledStatusScreen
+          key="called"
+          ticketLabel={`${queue.prefix}-${pad(myNumber)}`}
+          queueName={`${queue.icon} ${queue.name}`}
+        />
       )}
 
       {!isCancelled && !isAttended && !isCalled && (
@@ -98,9 +108,9 @@ export default function TicketClient({ ticket: initialTicket, waitingAhead: init
                 className="absolute inset-0 bg-amber-400/5 pointer-events-none"
               />
             )}
-            <p className="text-[10px] font-mono text-zinc-600 uppercase tracking-[0.35em] mb-4">
-              ◆ Tu número de turno
-            </p>
+            <div className="flex justify-center mb-4">
+              <StatusPill status="waiting" />
+            </div>
             <motion.div
               initial={{ scale: 0.85, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -337,88 +347,3 @@ function QueueTrack({ current, mine, prefix }: { current: number; mine: number; 
   )
 }
 
-// ── Called screen ─────────────────────────────────────────────────
-
-function CalledScreen({ queue, myNumber }: { queue: Queue; myNumber: number }) {
-  return (
-    <motion.div
-      key="called"
-      role="alert"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="min-h-screen bg-amber-400 flex flex-col items-center justify-center gap-6 p-8 text-zinc-950"
-    >
-      <motion.div
-        initial={{ y: -24, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.08, type: 'spring', stiffness: 280, damping: 14 }}
-        className="text-6xl animate-bounce"
-        aria-hidden="true"
-      >
-        🔔
-      </motion.div>
-
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.1 }}
-        className="text-xs font-mono uppercase tracking-[0.3em] text-zinc-700"
-      >
-        ◆ Es tu turno
-      </motion.p>
-
-      <motion.h1
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.14, type: 'spring', stiffness: 360, damping: 24 }}
-        className="text-5xl font-black text-center tracking-tight uppercase"
-      >
-        ¡Es tu turno!
-      </motion.h1>
-
-      <motion.div
-        initial={{ scale: 0.7, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 0.18, type: 'spring', stiffness: 260, damping: 18 }}
-        className="border-2 border-zinc-950/20 px-12 py-6 text-center"
-      >
-        <div className="font-mono font-bold tabular-nums text-6xl tracking-tight">
-          {queue.prefix}-{pad(myNumber)}
-        </div>
-        <div className="text-sm font-mono text-zinc-700 mt-2 uppercase tracking-widest">
-          {queue.icon} {queue.name}
-        </div>
-      </motion.div>
-
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.28 }}
-        className="text-base font-mono text-zinc-700 uppercase tracking-wider"
-      >
-        Acercate al mostrador ahora
-      </motion.p>
-    </motion.div>
-  )
-}
-
-// ── End screen (attended / cancelled) ────────────────────────────
-
-function EndScreen({ icon, title, sub, color }: { icon: string; title: string; sub: string; color: 'cyan' | 'zinc' }) {
-  const c = color === 'cyan'
-    ? { icon: 'text-cyan-400', text: 'text-cyan-400', sub: 'text-zinc-500' }
-    : { icon: 'text-zinc-600', text: 'text-zinc-500', sub: 'text-zinc-700' }
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.97 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-      className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center gap-4 p-8 text-center"
-    >
-      <div className={`text-5xl font-mono font-black ${c.icon}`} aria-hidden="true">{icon}</div>
-      <h1 className={`text-2xl font-black uppercase tracking-widest font-mono ${c.text}`}>{title}</h1>
-      <p className={`${c.sub} font-mono text-sm`}>{sub}</p>
-    </motion.div>
-  )
-}
