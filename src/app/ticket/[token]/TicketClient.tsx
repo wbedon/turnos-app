@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useTransition } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useSpring, useTransform } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
 import { Queue, Ticket, TicketStatus, QueueTiming } from '@/types'
 import { cancelTicket } from './actions'
@@ -13,28 +13,33 @@ interface Props {
   timing: QueueTiming
 }
 
-const spring = { type: "spring", stiffness: 400, damping: 28 } as const
-const ease   = [0.16, 1, 0.3, 1] as const
+const SPRING = { type: 'spring', stiffness: 380, damping: 30 } as const
+const EASE   = [0.16, 1, 0.3, 1] as const
+
+const pad = (n: number) => String(n).padStart(3, '0')
 
 export default function TicketClient({ ticket: initialTicket, waitingAhead: initialAhead, timing }: Props) {
   const [currentServing, setCurrentServing] = useState(initialTicket.queue.current_serving)
-  const [status, setStatus]   = useState<TicketStatus>(initialTicket.status)
-  const [waitingAhead, setWaitingAhead] = useState(initialAhead)
-  const [isPending, startTransition]    = useTransition()
-  const [cancelled, setCancelled]       = useState(false)
+  const [status, setStatus]                 = useState<TicketStatus>(initialTicket.status)
+  const [waitingAhead, setWaitingAhead]     = useState(initialAhead)
+  const [isPending, startTransition]        = useTransition()
+  const [cancelled, setCancelled]           = useState(false)
 
-  const queue      = initialTicket.queue
-  const myNumber   = initialTicket.number
-  const isCalled   = status === 'called' || currentServing === myNumber
-  const isAttended = status === 'attended'
+  const queue    = initialTicket.queue
+  const myNumber = initialTicket.number
+
+  const isCalled    = status === 'called' || currentServing === myNumber
+  const isAttended  = status === 'attended'
   const isCancelled = status === 'cancelled' || cancelled
 
   const estimatedMinutes = Math.round(waitingAhead * timing.avg_service_minutes)
+  const isNextUp         = waitingAhead <= 1 && !isCalled
 
   useEffect(() => {
-    const channel = supabase
+    const ch = supabase
       .channel(`ticket-${initialTicket.id}`)
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'queues', filter: `id=eq.${queue.id}` },
+      .on('postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'queues', filter: `id=eq.${queue.id}` },
         async (payload) => {
           const updated = payload.new as Queue
           setCurrentServing(updated.current_serving)
@@ -47,221 +52,209 @@ export default function TicketClient({ ticket: initialTicket, waitingAhead: init
           setWaitingAhead(count ?? 0)
         }
       )
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'tickets', filter: `id=eq.${initialTicket.id}` },
-        (payload) => { setStatus((payload.new as Ticket).status) }
+      .on('postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'tickets', filter: `id=eq.${initialTicket.id}` },
+        (payload) => setStatus((payload.new as Ticket).status)
       )
       .subscribe()
-    return () => { supabase.removeChannel(channel) }
+    return () => { supabase.removeChannel(ch) }
   }, [initialTicket.id, queue.id, myNumber])
 
   function handleCancel() {
     startTransition(async () => {
-      const result = await cancelTicket(initialTicket.id)
-      if (result.ok) setCancelled(true)
+      const r = await cancelTicket(initialTicket.id)
+      if (r.ok) setCancelled(true)
     })
   }
 
   return (
     <AnimatePresence mode="wait">
 
-      {/* ── Cancelado ── */}
       {isCancelled && (
-        <StatusScreen key="cancelled" icon="✗" title="TURNO CANCELADO" subtitle="Tu turno fue cancelado." variant="muted" />
+        <EndScreen key="cancelled" icon="✕" title="TURNO CANCELADO" sub="Tu turno fue cancelado." color="zinc" />
       )}
 
-      {/* ── Atendido ── */}
       {!isCancelled && isAttended && (
-        <StatusScreen key="attended" icon="✓" title="¡ATENDIDO!" subtitle="Tu turno fue atendido. ¡Hasta la próxima!" variant="success" />
+        <EndScreen key="attended" icon="✓" title="¡ATENDIDO!" sub="Gracias por tu visita. ¡Hasta pronto!" color="cyan" />
       )}
 
-      {/* ── Llamado ── */}
       {!isCancelled && !isAttended && isCalled && (
-        <motion.div
-          key="called"
-          role="alert"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="min-h-screen bg-amber-400 flex flex-col items-center justify-center gap-6 p-8 text-zinc-950"
-        >
-          <motion.div
-            initial={{ y: -30, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.1, type: "spring", stiffness: 300, damping: 15 }}
-            className="text-6xl animate-bounce"
-            aria-hidden="true"
-          >
-            🔔
-          </motion.div>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.12 }}
-            className="text-xs font-mono uppercase tracking-[0.3em] text-zinc-700"
-          >
-            ◆ Es tu turno
-          </motion.p>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15, ...spring }}
-            className="text-5xl font-black text-center tracking-tight uppercase"
-          >
-            ¡Es tu turno!
-          </motion.h1>
-
-          <motion.div
-            initial={{ scale: 0.7, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.2, type: "spring", stiffness: 260, damping: 18 }}
-            className="border-2 border-zinc-950/20 px-12 py-6 text-center"
-          >
-            <div className="font-mono font-bold tabular-nums text-6xl tracking-tight">
-              {queue.prefix}-{String(myNumber).padStart(3, '0')}
-            </div>
-            <div className="text-sm font-mono text-zinc-700 mt-2 uppercase tracking-widest">
-              <span aria-hidden="true">{queue.icon}</span> {queue.name}
-            </div>
-          </motion.div>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="text-base font-mono text-zinc-700 uppercase tracking-wider"
-          >
-            Acercate al mostrador ahora
-          </motion.p>
-        </motion.div>
+        <CalledScreen key="called" queue={queue} myNumber={myNumber} />
       )}
 
-      {/* ── Seguimiento / Boarding Pass ── */}
       {!isCancelled && !isAttended && !isCalled && (
         <motion.div
           key="tracking"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="min-h-screen bg-zinc-950 flex flex-col"
+          className="min-h-screen bg-zinc-950 flex flex-col pb-8"
         >
-          {/* Header */}
-          <header className="border-b border-zinc-800 px-6 py-5 text-center bg-zinc-950">
-            <p className="text-[10px] font-mono text-amber-400 uppercase tracking-[0.3em] mb-2">◆ Tu Turno</p>
-            <div
-              className="font-mono font-bold text-amber-400 tabular-nums leading-none"
-              style={{ fontSize: 'clamp(3rem, 12vw, 5rem)' }}
-            >
-              {queue.prefix}-{String(myNumber).padStart(3, '0')}
-            </div>
-            <div className="text-xs font-mono text-zinc-500 mt-2 uppercase tracking-widest">
-              <span aria-hidden="true">{queue.icon}</span> {queue.name}
-            </div>
-          </header>
-
-          <div className="flex-1 flex flex-col gap-3 p-5">
-
-            {/* Estado actual */}
-            <Card delay={0.05}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-[10px] font-mono text-zinc-600 uppercase tracking-[0.25em]">ATENDIENDO</p>
-                  <AnimatePresence mode="wait">
-                    <motion.p
-                      key={currentServing}
-                      initial={{ opacity: 0, y: -8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 8 }}
-                      transition={spring}
-                      className="font-mono font-bold text-zinc-100 tabular-nums mt-1"
-                      style={{ fontSize: 'clamp(1.5rem, 6vw, 2.2rem)' }}
-                    >
-                      {currentServing > 0
-                        ? `${queue.prefix}-${String(currentServing).padStart(3, '0')}`
-                        : '---'}
-                    </motion.p>
-                  </AnimatePresence>
-                </div>
-                <div className="text-right">
-                  <p className="text-[10px] font-mono text-zinc-600 uppercase tracking-[0.25em]">FALTAN</p>
-                  <AnimatePresence mode="wait">
-                    <motion.p
-                      key={waitingAhead}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 1.1 }}
-                      transition={spring}
-                      className="font-mono font-bold text-cyan-400 mt-1"
-                      style={{ fontSize: 'clamp(1.5rem, 6vw, 2.2rem)' }}
-                    >
-                      {waitingAhead}
-                    </motion.p>
-                  </AnimatePresence>
-                  <p className="text-[10px] font-mono text-zinc-600 uppercase tracking-widest">TURNOS</p>
-                </div>
-              </div>
-            </Card>
-
-            {/* Posición */}
-            <Card delay={0.1}>
-              <p className="text-[10px] font-mono text-zinc-600 uppercase tracking-[0.25em] mb-4">TU POSICIÓN</p>
-              <ProgressDots current={currentServing} mine={myNumber} prefix={queue.prefix} />
-            </Card>
-
-            {/* Tiempo estimado — con datos históricos */}
-            <Card delay={0.15}>
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <p className="text-[10px] font-mono text-zinc-600 uppercase tracking-[0.25em]">TIEMPO ESTIMADO</p>
-                  {estimatedMinutes > 0 ? (
-                    <p className="font-mono font-bold text-zinc-100 text-2xl mt-1 tabular-nums">
-                      ~{estimatedMinutes} min
-                    </p>
-                  ) : (
-                    <p className="font-mono font-bold text-amber-400 text-xl mt-1">¡MUY PRONTO!</p>
-                  )}
-                  <p className={`text-[10px] font-mono mt-2 uppercase tracking-widest ${timing.is_historical ? 'text-cyan-400' : 'text-zinc-700'}`}>
-                    {timing.is_historical
-                      ? `Basado en ${timing.sample_count} turnos reales`
-                      : 'Estimación general · ~5 min/turno'}
-                  </p>
-                </div>
-                <div className="text-right shrink-0">
-                  <p className="text-[10px] font-mono text-zinc-600 uppercase tracking-[0.25em]">PROM. ATENCIÓN</p>
-                  <p className="font-mono font-bold text-zinc-400 text-lg mt-1 tabular-nums">
-                    {timing.avg_service_minutes} min
-                  </p>
-                  {timing.is_historical && (
-                    <div className="mt-1 flex items-center justify-end gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 inline-block" />
-                      <span className="text-[9px] font-mono text-cyan-400 uppercase tracking-widest">Real</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </Card>
-
-            {/* Push notifications */}
+          {/* ── Hero: mi número ── */}
+          <div className="relative overflow-hidden pt-10 pb-8 px-6 text-center">
+            {isNextUp && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="absolute inset-0 bg-amber-400/5 pointer-events-none"
+              />
+            )}
+            <p className="text-[10px] font-mono text-zinc-600 uppercase tracking-[0.35em] mb-4">
+              ◆ Tu número de turno
+            </p>
             <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.35, ease }}
+              initial={{ scale: 0.85, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.05, ...SPRING }}
+              className={`font-mono font-black tabular-nums leading-none ${isNextUp ? 'text-amber-400' : 'text-zinc-100'}`}
+              style={{ fontSize: 'clamp(4.5rem, 22vw, 7rem)' }}
             >
-              <PushSubscriber ticketId={initialTicket.id} />
+              {queue.prefix}-{pad(myNumber)}
             </motion.div>
+            <p className="text-xs font-mono text-zinc-600 mt-3 uppercase tracking-widest">
+              {queue.icon} {queue.name}
+            </p>
 
-            {/* Cancelar */}
-            <div className="mt-auto pt-4 text-center">
-              <motion.button
-                onClick={handleCancel}
-                disabled={isPending}
-                whileTap={{ scale: 0.97 }}
-                transition={spring}
-                className="text-xs font-mono text-zinc-600 uppercase tracking-widest hover:text-zinc-400 transition-colors disabled:opacity-50"
+            {isNextUp && (
+              <motion.div
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                className="mt-4 inline-flex items-center gap-2 bg-amber-400/10 border border-amber-400/30 px-4 py-2"
               >
-                {isPending ? 'CANCELANDO...' : '¿Ya no venís? Cancelar turno'}
-              </motion.button>
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400" />
+                </span>
+                <span className="text-[11px] font-mono text-amber-400 uppercase tracking-[0.2em]">
+                  {waitingAhead === 0 ? '¡Sos el siguiente!' : '¡Casi es tu turno!'}
+                </span>
+              </motion.div>
+            )}
+          </div>
+
+          {/* ── Live status ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1, duration: 0.4, ease: EASE }}
+            className="mx-5 border border-zinc-800 bg-zinc-900 px-5 py-3.5 flex items-center gap-3"
+          >
+            <span className="relative flex h-2 w-2 shrink-0">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-60" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400" />
+            </span>
+            <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-[0.2em]">Atendiendo</span>
+            <div className="ml-auto">
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={currentServing}
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  transition={SPRING}
+                  className="font-mono font-bold text-cyan-400 tabular-nums text-xl"
+                >
+                  {currentServing > 0 ? `${queue.prefix}-${pad(currentServing)}` : '---'}
+                </motion.span>
+              </AnimatePresence>
             </div>
+          </motion.div>
+
+          {/* ── Queue progress ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15, duration: 0.4, ease: EASE }}
+            className="mx-5 mt-3 border border-zinc-800 bg-zinc-900 p-5"
+          >
+            <p className="text-[10px] font-mono text-zinc-600 uppercase tracking-[0.25em] mb-6">
+              Posición en cola
+            </p>
+
+            <QueueTrack
+              current={currentServing}
+              mine={myNumber}
+              prefix={queue.prefix}
+            />
+
+            {/* People ahead — número grande */}
+            <div className="mt-8 flex items-end justify-center gap-3">
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={waitingAhead}
+                  initial={{ opacity: 0, y: -16, scale: 0.7 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 16, scale: 0.8 }}
+                  transition={SPRING}
+                  className={`font-mono font-black tabular-nums leading-none ${
+                    waitingAhead === 0 ? 'text-amber-400' : 'text-zinc-100'
+                  }`}
+                  style={{ fontSize: 'clamp(3rem, 16vw, 4.5rem)' }}
+                >
+                  {waitingAhead}
+                </motion.span>
+              </AnimatePresence>
+              <p className="font-mono text-xs text-zinc-500 uppercase tracking-widest pb-2">
+                {waitingAhead === 1 ? 'persona\ndelante' : 'personas\ndelante'}
+              </p>
+            </div>
+          </motion.div>
+
+          {/* ── Tiempo estimado ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.4, ease: EASE }}
+            className="mx-5 mt-3 border border-zinc-800 bg-zinc-900 p-5 flex items-center justify-between gap-4"
+          >
+            <div>
+              <p className="text-[10px] font-mono text-zinc-600 uppercase tracking-[0.25em]">Tiempo estimado</p>
+              {estimatedMinutes > 0 ? (
+                <p className="font-mono font-bold text-zinc-100 text-2xl mt-1 tabular-nums">~{estimatedMinutes} min</p>
+              ) : (
+                <p className="font-mono font-bold text-amber-400 text-xl mt-1">¡Muy pronto!</p>
+              )}
+              <p className={`text-[10px] font-mono mt-1.5 uppercase tracking-widest ${timing.is_historical ? 'text-cyan-400' : 'text-zinc-700'}`}>
+                {timing.is_historical
+                  ? `${timing.sample_count} turnos reales`
+                  : 'Estimación general'}
+              </p>
+            </div>
+            <div className="text-right shrink-0">
+              <p className="text-[10px] font-mono text-zinc-600 uppercase tracking-[0.25em]">Prom/turno</p>
+              <p className="font-mono font-bold text-zinc-400 text-xl mt-1 tabular-nums">
+                {timing.avg_service_minutes}<span className="text-sm text-zinc-600"> min</span>
+              </p>
+              {timing.is_historical && (
+                <div className="mt-1 flex items-center justify-end gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                  <span className="text-[9px] font-mono text-cyan-400 uppercase tracking-widest">Real</span>
+                </div>
+              )}
+            </div>
+          </motion.div>
+
+          {/* ── Push notifications ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25, duration: 0.4, ease: EASE }}
+            className="mx-5 mt-3"
+          >
+            <PushSubscriber ticketId={initialTicket.id} />
+          </motion.div>
+
+          {/* ── Cancelar ── */}
+          <div className="mt-auto pt-6 text-center">
+            <motion.button
+              onClick={handleCancel}
+              disabled={isPending}
+              whileTap={{ scale: 0.97 }}
+              transition={SPRING}
+              className="text-xs font-mono text-zinc-700 uppercase tracking-widest hover:text-zinc-500 transition-colors disabled:opacity-40"
+            >
+              {isPending ? 'Cancelando...' : '¿Ya no venís? Cancelar turno'}
+            </motion.button>
           </div>
         </motion.div>
       )}
@@ -269,92 +262,163 @@ export default function TicketClient({ ticket: initialTicket, waitingAhead: init
   )
 }
 
-// ── Componentes auxiliares ────────────────────────────────────────
+// ── Queue Track ─────────────────────────────────────────────────────
 
-function Card({ children, className = '', delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay, duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-      className={`border border-zinc-800 bg-zinc-900 p-5 ${className}`}
-    >
-      {children}
-    </motion.div>
-  )
-}
+function QueueTrack({ current, mine, prefix }: { current: number; mine: number; prefix: string }) {
+  const pct = current === 0 ? 0 : Math.min((current / mine) * 100, 93)
 
-function ProgressDots({ current, mine, prefix }: { current: number; mine: number; prefix: string }) {
-  if (current === 0) {
-    return <p className="text-zinc-600 font-mono text-xs uppercase tracking-widest">Esperando el primer llamado...</p>
-  }
+  // spring-animated progress value
+  const springPct = useSpring(pct, { stiffness: 120, damping: 20 })
+  useEffect(() => { springPct.set(pct) }, [pct, springPct])
+  const barWidth = useTransform(springPct, v => `${v}%`)
+  const dotLeft  = useTransform(springPct, v => `${v}%`)
 
-  const gap = mine - current
-  const srText = gap === 0
-    ? `Atendiendo tu turno ${prefix}-${String(mine).padStart(3,'0')}`
-    : `Tu turno ${prefix}-${String(mine).padStart(3,'0')} — faltan ${gap} turno${gap === 1 ? '' : 's'}`
-
-  const dots: { number: number; isMine: boolean }[] = []
-  if (gap <= 5) {
-    for (let n = current; n <= mine; n++) dots.push({ number: n, isMine: n === mine })
-  } else {
-    dots.push({ number: current,  isMine: false })
-    dots.push({ number: mine - 2, isMine: false })
-    dots.push({ number: mine - 1, isMine: false })
-    dots.push({ number: mine,     isMine: true  })
-  }
+  // clamp label so it doesn't collide with the right end
+  const labelLeft = useTransform(springPct, v => `${Math.min(v, 72)}%`)
 
   return (
-    <div>
-      <p className="sr-only" aria-live="polite">{srText}</p>
-      <div className="flex items-center gap-2 flex-wrap" aria-hidden="true">
-        {dots.map((dot, i) => {
-          const showEllipsis = gap > 5 && i === 1
-          return (
-            <div key={dot.number} className="flex items-center gap-2">
-              {showEllipsis && <span className="text-zinc-700 font-mono text-xs">···</span>}
-              <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: dot.isMine ? 1.1 : 1, opacity: 1 }}
-                transition={{ delay: i * 0.04, type: "spring", stiffness: 400, damping: 25 }}
-                className="flex flex-col items-center gap-1"
-              >
-                <div className={`w-10 h-10 flex items-center justify-center font-mono text-xs font-bold tabular-nums
-                  ${dot.isMine
-                    ? 'bg-amber-400 text-zinc-950 ring-2 ring-amber-400/30'
-                    : dot.number === current
-                    ? 'bg-cyan-400/20 border border-cyan-400/60 text-cyan-400'
-                    : 'border border-zinc-700 bg-zinc-900 text-zinc-600'}`}
-                >
-                  {String(dot.number).padStart(3, '0')}
-                </div>
-                {dot.isMine && <span className="text-[9px] font-mono text-amber-400 uppercase tracking-widest">Vos</span>}
-                {dot.number === current && !dot.isMine && <span className="text-[9px] font-mono text-cyan-400 uppercase">Ahora</span>}
-              </motion.div>
-            </div>
-          )
-        })}
+    <div className="relative select-none" aria-hidden="true">
+
+      {/* ── Track bar ── */}
+      <div className="relative h-[3px] bg-zinc-800 mx-2">
+        {/* Fill */}
+        <motion.div
+          className="absolute left-0 top-0 h-full bg-gradient-to-r from-cyan-600 to-cyan-400"
+          style={{ width: barWidth }}
+        />
+
+        {/* Current serving dot */}
+        <motion.div
+          className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-10"
+          style={{ left: dotLeft }}
+        >
+          <div className="w-4 h-4 rounded-full bg-cyan-400 ring-[5px] ring-cyan-400/20 flex items-center justify-center">
+            <div className="w-1.5 h-1.5 rounded-full bg-zinc-950" />
+          </div>
+        </motion.div>
+
+        {/* My dot (fixed at right) */}
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-20">
+          <div className={`w-5 h-5 bg-amber-400 flex items-center justify-center ring-[6px] transition-shadow duration-500 ${pct > 75 ? 'ring-amber-400/40' : 'ring-amber-400/15'}`}>
+            <div className="w-2 h-2 bg-zinc-950" />
+          </div>
+        </div>
       </div>
+
+      {/* ── Labels below track ── */}
+      <div className="relative h-10 mt-3 mx-2">
+        {/* Current label — slides */}
+        <motion.div
+          className="absolute -translate-x-1/2 text-center"
+          style={{ left: labelLeft }}
+        >
+          <p className="text-[10px] font-mono font-bold text-cyan-400 tabular-nums whitespace-nowrap">
+            {current > 0 ? `${prefix}-${pad(current)}` : '—'}
+          </p>
+          <p className="text-[8px] font-mono text-zinc-600 uppercase tracking-wider mt-0.5">Ahora</p>
+        </motion.div>
+
+        {/* My label — fixed right */}
+        <div className="absolute right-0 text-right">
+          <p className="text-[10px] font-mono font-bold text-amber-400 tabular-nums whitespace-nowrap">
+            {prefix}-{pad(mine)}
+          </p>
+          <p className="text-[8px] font-mono text-zinc-600 uppercase tracking-wider mt-0.5">Vos</p>
+        </div>
+      </div>
+
+      {/* ── SR text ── */}
+      <p className="sr-only" aria-live="polite">
+        {current > 0
+          ? `Atendiendo ${prefix}-${pad(current)}. Tu turno: ${prefix}-${pad(mine)}.`
+          : `Esperando el primer llamado. Tu turno: ${prefix}-${pad(mine)}.`}
+      </p>
     </div>
   )
 }
 
-function StatusScreen({ icon, title, subtitle, variant }: { icon: string; title: string; subtitle: string; variant: 'muted' | 'success' }) {
-  const styles = {
-    muted:   { bg: 'bg-zinc-950', icon: 'text-zinc-500', text: 'text-zinc-400', sub: 'text-zinc-600' },
-    success: { bg: 'bg-zinc-950', icon: 'text-cyan-400',  text: 'text-cyan-400', sub: 'text-zinc-500' },
-  }
-  const s = styles[variant]
+// ── Called screen ─────────────────────────────────────────────────
+
+function CalledScreen({ queue, myNumber }: { queue: Queue; myNumber: number }) {
+  return (
+    <motion.div
+      key="called"
+      role="alert"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="min-h-screen bg-amber-400 flex flex-col items-center justify-center gap-6 p-8 text-zinc-950"
+    >
+      <motion.div
+        initial={{ y: -24, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.08, type: 'spring', stiffness: 280, damping: 14 }}
+        className="text-6xl animate-bounce"
+        aria-hidden="true"
+      >
+        🔔
+      </motion.div>
+
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.1 }}
+        className="text-xs font-mono uppercase tracking-[0.3em] text-zinc-700"
+      >
+        ◆ Es tu turno
+      </motion.p>
+
+      <motion.h1
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.14, type: 'spring', stiffness: 360, damping: 24 }}
+        className="text-5xl font-black text-center tracking-tight uppercase"
+      >
+        ¡Es tu turno!
+      </motion.h1>
+
+      <motion.div
+        initial={{ scale: 0.7, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 0.18, type: 'spring', stiffness: 260, damping: 18 }}
+        className="border-2 border-zinc-950/20 px-12 py-6 text-center"
+      >
+        <div className="font-mono font-bold tabular-nums text-6xl tracking-tight">
+          {queue.prefix}-{pad(myNumber)}
+        </div>
+        <div className="text-sm font-mono text-zinc-700 mt-2 uppercase tracking-widest">
+          {queue.icon} {queue.name}
+        </div>
+      </motion.div>
+
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.28 }}
+        className="text-base font-mono text-zinc-700 uppercase tracking-wider"
+      >
+        Acercate al mostrador ahora
+      </motion.p>
+    </motion.div>
+  )
+}
+
+// ── End screen (attended / cancelled) ────────────────────────────
+
+function EndScreen({ icon, title, sub, color }: { icon: string; title: string; sub: string; color: 'cyan' | 'zinc' }) {
+  const c = color === 'cyan'
+    ? { icon: 'text-cyan-400', text: 'text-cyan-400', sub: 'text-zinc-500' }
+    : { icon: 'text-zinc-600', text: 'text-zinc-500', sub: 'text-zinc-700' }
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.97 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-      className={`min-h-screen ${s.bg} flex flex-col items-center justify-center gap-4 p-8 text-center`}
+      className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center gap-4 p-8 text-center"
     >
-      <div className={`text-5xl font-mono font-black ${s.icon}`} aria-hidden="true">{icon}</div>
-      <h1 className={`text-2xl font-black uppercase tracking-widest font-mono ${s.text}`}>{title}</h1>
-      <p className={`${s.sub} font-mono text-sm`}>{subtitle}</p>
+      <div className={`text-5xl font-mono font-black ${c.icon}`} aria-hidden="true">{icon}</div>
+      <h1 className={`text-2xl font-black uppercase tracking-widest font-mono ${c.text}`}>{title}</h1>
+      <p className={`${c.sub} font-mono text-sm`}>{sub}</p>
     </motion.div>
   )
 }
