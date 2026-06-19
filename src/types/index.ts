@@ -19,7 +19,15 @@ export interface Ticket {
   push_sub: PushSubscriptionJSON | null
   created_at: string
   called_at: string | null
+  attended_at: string | null
   queue?: Queue
+}
+
+export interface QueueTiming {
+  avg_service_minutes: number
+  avg_wait_minutes: number
+  sample_count: number
+  is_historical: boolean
 }
 
 export interface PushSubscriptionJSON {

@@ -3,17 +3,20 @@
 import { useEffect, useState, useTransition } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
-import { Queue, Ticket, TicketStatus } from '@/types'
+import { Queue, Ticket, TicketStatus, QueueTiming } from '@/types'
 import { cancelTicket } from './actions'
 import PushSubscriber from '@/components/PushSubscriber'
 
-interface Props { ticket: Ticket & { queue: Queue }; waitingAhead: number }
+interface Props {
+  ticket: Ticket & { queue: Queue }
+  waitingAhead: number
+  timing: QueueTiming
+}
 
-const MINUTES_PER_TURN = 5
 const spring = { type: "spring", stiffness: 400, damping: 28 } as const
 const ease   = [0.16, 1, 0.3, 1] as const
 
-export default function TicketClient({ ticket: initialTicket, waitingAhead: initialAhead }: Props) {
+export default function TicketClient({ ticket: initialTicket, waitingAhead: initialAhead, timing }: Props) {
   const [currentServing, setCurrentServing] = useState(initialTicket.queue.current_serving)
   const [status, setStatus]   = useState<TicketStatus>(initialTicket.status)
   const [waitingAhead, setWaitingAhead] = useState(initialAhead)
@@ -22,10 +25,11 @@ export default function TicketClient({ ticket: initialTicket, waitingAhead: init
 
   const queue      = initialTicket.queue
   const myNumber   = initialTicket.number
-  const remaining  = Math.max(0, myNumber - currentServing - 1)
   const isCalled   = status === 'called' || currentServing === myNumber
   const isAttended = status === 'attended'
   const isCancelled = status === 'cancelled' || cancelled
+
+  const estimatedMinutes = Math.round(waitingAhead * timing.avg_service_minutes)
 
   useEffect(() => {
     const channel = supabase
@@ -56,8 +60,6 @@ export default function TicketClient({ ticket: initialTicket, waitingAhead: init
       if (result.ok) setCancelled(true)
     })
   }
-
-  const estimatedMinutes = remaining * MINUTES_PER_TURN
 
   return (
     <AnimatePresence mode="wait">
@@ -143,7 +145,7 @@ export default function TicketClient({ ticket: initialTicket, waitingAhead: init
           animate={{ opacity: 1 }}
           className="min-h-screen bg-zinc-950 flex flex-col"
         >
-          {/* Header — boarding pass top stub */}
+          {/* Header */}
           <header className="border-b border-zinc-800 px-6 py-5 text-center bg-zinc-950">
             <p className="text-[10px] font-mono text-amber-400 uppercase tracking-[0.3em] mb-2">◆ Tu Turno</p>
             <div
@@ -159,7 +161,7 @@ export default function TicketClient({ ticket: initialTicket, waitingAhead: init
 
           <div className="flex-1 flex flex-col gap-3 p-5">
 
-            {/* Estado actual — boarding pass row */}
+            {/* Estado actual */}
             <Card delay={0.05}>
               <div className="flex items-center justify-between">
                 <div>
@@ -206,16 +208,36 @@ export default function TicketClient({ ticket: initialTicket, waitingAhead: init
               <ProgressDots current={currentServing} mine={myNumber} prefix={queue.prefix} />
             </Card>
 
-            {/* Tiempo estimado */}
-            <Card delay={0.15} className="flex items-center gap-4">
-              <span className="text-2xl" aria-hidden="true">⏱️</span>
-              <div>
-                <p className="text-[10px] font-mono text-zinc-600 uppercase tracking-[0.25em]">TIEMPO ESTIMADO</p>
-                {estimatedMinutes > 0 ? (
-                  <p className="font-mono font-bold text-zinc-100 text-2xl mt-0.5">~{estimatedMinutes} min</p>
-                ) : (
-                  <p className="font-mono font-bold text-amber-400 text-xl mt-0.5">¡MUY PRONTO!</p>
-                )}
+            {/* Tiempo estimado — con datos históricos */}
+            <Card delay={0.15}>
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <p className="text-[10px] font-mono text-zinc-600 uppercase tracking-[0.25em]">TIEMPO ESTIMADO</p>
+                  {estimatedMinutes > 0 ? (
+                    <p className="font-mono font-bold text-zinc-100 text-2xl mt-1 tabular-nums">
+                      ~{estimatedMinutes} min
+                    </p>
+                  ) : (
+                    <p className="font-mono font-bold text-amber-400 text-xl mt-1">¡MUY PRONTO!</p>
+                  )}
+                  <p className={`text-[10px] font-mono mt-2 uppercase tracking-widest ${timing.is_historical ? 'text-cyan-400' : 'text-zinc-700'}`}>
+                    {timing.is_historical
+                      ? `Basado en ${timing.sample_count} turnos reales`
+                      : 'Estimación general · ~5 min/turno'}
+                  </p>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="text-[10px] font-mono text-zinc-600 uppercase tracking-[0.25em]">PROM. ATENCIÓN</p>
+                  <p className="font-mono font-bold text-zinc-400 text-lg mt-1 tabular-nums">
+                    {timing.avg_service_minutes} min
+                  </p>
+                  {timing.is_historical && (
+                    <div className="mt-1 flex items-center justify-end gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 inline-block" />
+                      <span className="text-[9px] font-mono text-cyan-400 uppercase tracking-widest">Real</span>
+                    </div>
+                  )}
+                </div>
               </div>
             </Card>
 
@@ -276,10 +298,10 @@ function ProgressDots({ current, mine, prefix }: { current: number; mine: number
   if (gap <= 5) {
     for (let n = current; n <= mine; n++) dots.push({ number: n, isMine: n === mine })
   } else {
-    dots.push({ number: current, isMine: false })
+    dots.push({ number: current,  isMine: false })
     dots.push({ number: mine - 2, isMine: false })
     dots.push({ number: mine - 1, isMine: false })
-    dots.push({ number: mine,     isMine: true })
+    dots.push({ number: mine,     isMine: true  })
   }
 
   return (
@@ -290,7 +312,7 @@ function ProgressDots({ current, mine, prefix }: { current: number; mine: number
           const showEllipsis = gap > 5 && i === 1
           return (
             <div key={dot.number} className="flex items-center gap-2">
-              {showEllipsis && <span className="text-zinc-700 font-mono text-xs" aria-hidden="true">···</span>}
+              {showEllipsis && <span className="text-zinc-700 font-mono text-xs">···</span>}
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: dot.isMine ? 1.1 : 1, opacity: 1 }}
