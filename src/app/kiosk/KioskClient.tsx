@@ -153,7 +153,7 @@ export default function KioskClient({ queues }: Props) {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, ...spring }}
-              className="w-full max-w-2xl flex flex-col gap-3 pb-2"
+              className="w-full max-w-2xl flex flex-row gap-3 pb-2"
             >
               {/* ACEPTAR — primario */}
               <motion.button
