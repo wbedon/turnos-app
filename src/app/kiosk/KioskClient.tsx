@@ -148,46 +148,51 @@ export default function KioskClient({ queues }: Props) {
               </div>
             </motion.div>
 
-            {/* Botón confirmar con countdown */}
+            {/* Botones de acción — grandes para touch/tablet */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, ...spring }}
-              className="w-full max-w-2xl pb-2"
+              className="w-full max-w-2xl flex flex-col gap-3 pb-2"
             >
+              {/* ACEPTAR — primario */}
               <motion.button
                 onClick={handleReset}
                 whileTap={{ scale: 0.98 }}
-                className="relative w-full overflow-hidden border border-amber-400/50 bg-zinc-900
-                           hover:bg-zinc-800 hover:border-amber-400 transition-colors duration-150
-                           px-6 py-5 text-center"
+                className="relative w-full overflow-hidden border-2 border-amber-400 bg-amber-400/10
+                           hover:bg-amber-400/20 active:bg-amber-400/30 transition-colors duration-150
+                           px-6 py-6 text-center"
               >
-                {/* Barra de progreso que se vacía */}
                 <motion.div
-                  className="absolute bottom-0 left-0 h-[3px] bg-amber-400/50"
+                  className="absolute bottom-0 left-0 h-[3px] bg-amber-400"
                   initial={{ width: '100%' }}
                   animate={{ width: '0%' }}
                   transition={{ duration: RESET_SECONDS, ease: 'linear' }}
                 />
-                <p className="font-black text-amber-400 uppercase tracking-widest text-base">
-                  ✓ Listo, ya tomé mi turno
+                <p className="font-black text-amber-400 uppercase tracking-widest text-xl">
+                  ACEPTAR
                 </p>
-                <p className="text-[11px] font-mono text-zinc-600 uppercase tracking-widest mt-1">
+                <p className="text-xs font-mono text-amber-400/50 uppercase tracking-widest mt-1.5">
                   Vuelve al inicio en {countdown}s
                 </p>
               </motion.button>
-              {/* Botón secundario: cancelar por error */}
+
+              {/* CANCELAR — secundario */}
               <motion.button
                 onClick={handleCancel}
                 disabled={isCancelling}
-                whileTap={{ scale: 0.97 }}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.4, ...spring }}
-                className="text-[11px] font-mono text-zinc-700 uppercase tracking-widest
-                           hover:text-red-400 transition-colors duration-150 disabled:opacity-40 pt-1"
+                whileTap={{ scale: 0.98 }}
+                className="relative w-full border-2 border-zinc-700 bg-zinc-900
+                           hover:border-zinc-500 hover:bg-zinc-800 active:bg-zinc-700
+                           transition-colors duration-150 disabled:opacity-40
+                           px-6 py-6 text-center"
               >
-                {isCancelling ? 'Cancelando...' : '✕ Me equivoqué · Cancelar turno'}
+                <p className="font-black text-zinc-400 uppercase tracking-widest text-xl">
+                  {isCancelling ? 'CANCELANDO...' : 'CANCELAR'}
+                </p>
+                <p className="text-xs font-mono text-zinc-600 uppercase tracking-widest mt-1.5">
+                  Me equivoqué · liberar este turno
+                </p>
               </motion.button>
             </motion.div>
           </motion.div>
