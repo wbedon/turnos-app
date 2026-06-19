@@ -80,37 +80,50 @@ export default function KioskClient({ queues }: Props) {
               </p>
             </motion.div>
 
-            {/* Número — grande como en pantalla de aeropuerto */}
+            {/* Boarding pass — una columna en portrait, dos en landscape/monitor */}
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.1, type: "spring", stiffness: 260, damping: 20 }}
-              className="w-full max-w-sm border border-amber-400/30 bg-zinc-900"
+              className="w-full max-w-2xl border border-amber-400/30 bg-zinc-900
+                         flex flex-col landscape:flex-row"
             >
-              {/* Header fila */}
-              <div className="border-b border-zinc-800 px-5 py-3 flex justify-between items-center">
-                <span className="text-xs font-mono uppercase tracking-widest text-zinc-500">TURNO</span>
-                <span className="text-xs font-mono uppercase tracking-widest text-zinc-500">COLA</span>
-              </div>
-              {/* Valores */}
-              <div className="px-5 py-6 flex justify-between items-end">
-                <div
-                  className="font-mono font-bold text-amber-400 tabular-nums leading-none"
-                  style={{ fontSize: 'clamp(4rem, 18vw, 7rem)' }}
-                >
-                  {confirmed.ticket.queue.prefix}-{String(confirmed.ticket.number).padStart(3, '0')}
+              {/* Columna izquierda: número + cola */}
+              <div className="flex-1 flex flex-col">
+                {/* Header */}
+                <div className="border-b border-zinc-800 px-5 py-3 flex justify-between items-center landscape:border-r-0">
+                  <span className="text-xs font-mono uppercase tracking-widest text-zinc-500">TURNO</span>
+                  <span className="text-xs font-mono uppercase tracking-widest text-zinc-500">COLA</span>
                 </div>
-                <div className="text-right">
-                  <div className="text-4xl" aria-hidden="true">{confirmed.ticket.queue.icon}</div>
-                  <p className="text-xs font-mono text-zinc-400 mt-1 uppercase tracking-wider">
-                    {confirmed.ticket.queue.name}
-                  </p>
+                {/* Número + icono */}
+                <div className="px-5 py-6 flex justify-between items-center flex-1">
+                  <div
+                    className="font-mono font-bold text-amber-400 tabular-nums leading-none"
+                    style={{ fontSize: 'clamp(3.5rem, 14vw, 7rem)' }}
+                  >
+                    {confirmed.ticket.queue.prefix}-{String(confirmed.ticket.number).padStart(3, '0')}
+                  </div>
+                  <div className="text-right flex flex-col items-end gap-1">
+                    <div
+                      aria-hidden="true"
+                      style={{ fontSize: 'clamp(2rem, 7vw, 3.5rem)' }}
+                    >
+                      {confirmed.ticket.queue.icon}
+                    </div>
+                    <p className="text-xs font-mono text-zinc-400 uppercase tracking-wider">
+                      {confirmed.ticket.queue.name}
+                    </p>
+                  </div>
                 </div>
               </div>
-              {/* Línea perforación */}
-              <div className="perforation mt-2" />
-              {/* QR row */}
-              <div className="px-5 py-5 flex items-center gap-5">
+
+              {/* Separador — horizontal en portrait, vertical en landscape */}
+              <div className="perforation landscape:hidden" />
+              <div className="hidden landscape:block w-px bg-zinc-800 self-stretch mx-0" />
+
+              {/* Columna derecha: QR */}
+              <div className="px-5 py-5 flex items-center gap-5
+                              landscape:flex-col landscape:justify-center landscape:min-w-[180px]">
                 <div role="img" aria-label="Código QR para seguir tu turno desde el celular">
                   <QRCodeSVG
                     value={confirmed.url}
@@ -120,7 +133,7 @@ export default function KioskClient({ queues }: Props) {
                     level="M"
                   />
                 </div>
-                <p className="text-xs text-zinc-500 font-mono leading-relaxed">
+                <p className="text-xs text-zinc-500 font-mono leading-relaxed landscape:text-center">
                   ESCANEÁ CON TU<br />CELULAR PARA<br />SEGUIR EL TURNO
                 </p>
               </div>
