@@ -139,17 +139,35 @@ export default function KioskClient({ queues }: Props) {
               </div>
             </motion.div>
 
-            {/* Countdown volver */}
-            <motion.button
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+            {/* Botón confirmar con countdown */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, ...spring }}
-              onClick={handleReset}
-              whileTap={{ scale: 0.97 }}
-              className="text-zinc-600 text-xs font-mono pb-4 hover:text-zinc-400 transition-colors uppercase tracking-widest"
+              className="w-full max-w-2xl pb-2"
             >
-              VOLVER AL INICIO ({countdown}s)
-            </motion.button>
+              <motion.button
+                onClick={handleReset}
+                whileTap={{ scale: 0.98 }}
+                className="relative w-full overflow-hidden border border-amber-400/50 bg-zinc-900
+                           hover:bg-zinc-800 hover:border-amber-400 transition-colors duration-150
+                           px-6 py-5 text-center"
+              >
+                {/* Barra de progreso que se vacía */}
+                <motion.div
+                  className="absolute bottom-0 left-0 h-[3px] bg-amber-400/50"
+                  initial={{ width: '100%' }}
+                  animate={{ width: '0%' }}
+                  transition={{ duration: RESET_SECONDS, ease: 'linear' }}
+                />
+                <p className="font-black text-amber-400 uppercase tracking-widest text-base">
+                  ✓ Listo, ya tomé mi turno
+                </p>
+                <p className="text-[11px] font-mono text-zinc-600 uppercase tracking-widest mt-1">
+                  Vuelve al inicio en {countdown}s
+                </p>
+              </motion.button>
+            </motion.div>
           </motion.div>
         )}
 
