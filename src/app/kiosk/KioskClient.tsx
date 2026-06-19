@@ -3,7 +3,7 @@
 import { useState, useEffect, useTransition } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { QRCodeSVG } from 'qrcode.react'
-import { createTicket, CreateTicketResult } from './actions'
+import { createTicket, cancelKioskTicket, CreateTicketResult } from './actions'
 import { Queue, Ticket } from '@/types'
 
 interface Props { queues: Queue[] }
@@ -18,7 +18,8 @@ export default function KioskClient({ queues }: Props) {
   const [confirmed, setConfirmed] = useState<ConfirmedTicket | null>(null)
   const [countdown, setCountdown] = useState(RESET_SECONDS)
   const [error, setError]         = useState<string | null>(null)
-  const [isPending, startTransition] = useTransition()
+  const [isPending, startTransition]       = useTransition()
+  const [isCancelling, startCancelTransition] = useTransition()
 
   useEffect(() => {
     if (screen !== 'confirm') return
@@ -37,6 +38,14 @@ export default function KioskClient({ queues }: Props) {
     setScreen('select')
     setConfirmed(null)
     setError(null)
+  }
+
+  function handleCancel() {
+    if (!confirmed) return
+    startCancelTransition(async () => {
+      await cancelKioskTicket(confirmed.ticket.id)
+      handleReset()
+    })
   }
 
   function handleSelectQueue(queue: Queue) {
@@ -166,6 +175,19 @@ export default function KioskClient({ queues }: Props) {
                 <p className="text-[11px] font-mono text-zinc-600 uppercase tracking-widest mt-1">
                   Vuelve al inicio en {countdown}s
                 </p>
+              </motion.button>
+              {/* Botón secundario: cancelar por error */}
+              <motion.button
+                onClick={handleCancel}
+                disabled={isCancelling}
+                whileTap={{ scale: 0.97 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4, ...spring }}
+                className="text-[11px] font-mono text-zinc-700 uppercase tracking-widest
+                           hover:text-red-400 transition-colors duration-150 disabled:opacity-40 pt-1"
+              >
+                {isCancelling ? 'Cancelando...' : '✕ Me equivoqué · Cancelar turno'}
               </motion.button>
             </motion.div>
           </motion.div>

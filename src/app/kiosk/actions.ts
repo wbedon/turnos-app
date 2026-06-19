@@ -23,3 +23,12 @@ export async function createTicket(queueId: string): Promise<CreateTicketResult>
 
   return { ok: true, ticket }
 }
+
+export async function cancelKioskTicket(ticketId: string): Promise<{ ok: boolean }> {
+  const { error } = await supabaseAdmin
+    .from('tickets')
+    .update({ status: 'cancelled' })
+    .eq('id', ticketId)
+    .eq('status', 'waiting')
+  return { ok: !error }
+}
