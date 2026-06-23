@@ -78,11 +78,11 @@ export default function LandingContact() {
                 </div>
                 <div>
                   <div className="text-zinc-100 text-sm font-black uppercase tracking-wide">200+ NEGOCIOS</div>
-                  <div className="text-[9px] font-mono text-zinc-600 uppercase tracking-widest">YA USAN TURNIX</div>
+                  <div className="text-[9px] font-mono text-zinc-600 uppercase tracking-widest">YA USAN SHÜY4Y</div>
                 </div>
               </div>
               <blockquote className="text-zinc-500 text-sm leading-relaxed italic border-l border-zinc-800 pl-3">
-                "Implementamos Turnix en un día. Las quejas de espera bajaron a casi cero la primera semana."
+                "Implementamos SHÜY4Y en un día. Las quejas de espera bajaron a casi cero la primera semana."
               </blockquote>
               <div className="mt-4 flex items-center gap-2">
                 <div className="w-6 h-6 bg-zinc-700 flex items-center justify-center text-[10px] font-mono font-bold text-zinc-300">M</div>
@@ -107,7 +107,7 @@ export default function LandingContact() {
                 </div>
                 <h3 className="font-black uppercase tracking-tight text-zinc-100 text-xl mb-2">¡LISTO!</h3>
                 <p className="text-zinc-500 text-sm leading-relaxed">
-                  Recibimos tu solicitud. Un especialista de Turnix se contacta en menos de 24 horas para coordinar la demo.
+                  Recibimos tu solicitud. Un especialista de SHÜY4Y se contacta en menos de 24 horas para coordinar la demo.
                 </p>
                 <p className="mt-6 text-[10px] font-mono text-amber-400/60 uppercase tracking-widest">
                   ◆ MIENTRAS TANTO PODÉS EXPLORAR EL DEMO EN VIVO

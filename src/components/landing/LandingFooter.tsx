@@ -9,7 +9,7 @@ export default function LandingFooter() {
           <div className="sm:col-span-1">
             <a href="#" className="flex items-center gap-2 mb-3">
               <div className="w-px h-4 bg-amber-400" />
-              <span className="font-black text-sm uppercase tracking-[0.2em] text-zinc-100">TURNIX</span>
+              <span className="font-black text-sm uppercase tracking-[0.2em] text-zinc-100">SHÜY4Y</span>
             </a>
             <p className="text-zinc-600 text-xs leading-relaxed font-mono">
               La plataforma de gestión de turnos que moderniza la atención al cliente. Sin filas, sin papel, sin complicaciones.
@@ -59,7 +59,7 @@ export default function LandingFooter() {
 
         <div className="border-t border-zinc-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-[9px] font-mono text-zinc-700 uppercase tracking-widest">
-            © 2026 TURNIX. TODOS LOS DERECHOS RESERVADOS.
+            © 2026 SHÜY4Y. TODOS LOS DERECHOS RESERVADOS.
           </p>
           <div className="flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />

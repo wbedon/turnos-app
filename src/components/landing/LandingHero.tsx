@@ -105,7 +105,7 @@ export default function LandingHero() {
               transition={{ duration: 0.4, delay: 0.15 }}
               className="text-zinc-400 text-base leading-relaxed mb-10 max-w-md border-l-2 border-zinc-800 pl-4"
             >
-              Turnix digitaliza la gestión de turnos para cualquier negocio. Kiosco táctil, display en sala y notificaciones al celular — en tiempo real, sin hardware costoso.
+              SHÜY4Y digitaliza la gestión de turnos para cualquier negocio. Kiosco táctil, display en sala y notificaciones al celular — en tiempo real, sin hardware costoso.
             </motion.p>
 
             {/* CTAs */}
@@ -119,7 +119,7 @@ export default function LandingHero() {
                 className="border-2 border-amber-400 bg-amber-400/10 hover:bg-amber-400/20 active:bg-amber-400/30 transition-colors px-8 py-4 text-center font-black text-amber-400 uppercase tracking-widest text-sm">
                 SOLICITAR DEMO GRATUITA
               </a>
-              <a href="https://turnos-app-lilac.vercel.app/display" target="_blank" rel="noopener noreferrer"
+              <a href="/dev"
                 className="border border-zinc-700 hover:border-zinc-500 bg-zinc-900 hover:bg-zinc-800 transition-colors px-8 py-4 text-center font-black text-zinc-300 uppercase tracking-widest text-sm">
                 VER DEMO EN VIVO →
               </a>

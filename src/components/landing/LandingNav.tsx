@@ -31,7 +31,7 @@ export default function LandingNav() {
           <a href="#" className="flex items-center gap-3 group">
             <div className="w-px h-5 bg-amber-400" aria-hidden="true" />
             <span className="font-black text-sm uppercase tracking-[0.2em] text-zinc-100 group-hover:text-amber-400 transition-colors">
-              TURNIX
+              SHÜY4Y
             </span>
             <span className="text-[10px] font-mono text-amber-400 uppercase tracking-widest hidden sm:block">
               ◆ SISTEMA DE TURNOS

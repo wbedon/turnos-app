@@ -10,7 +10,7 @@ const benefits = [
   { tag: 'FLEXIBILIDAD',  title: 'Múltiples colas simultáneas',                     desc: 'Hasta 4 colas independientes (Caja, Consultas, VIP, Devoluciones) gestionadas en paralelo.' },
   { tag: 'VELOCIDAD',     title: 'Setup en menos de 5 minutos',                     desc: 'Creá tu cuenta, configurá las colas y empezá a atender. Sin IT, sin servidores, sin instalación.' },
   { tag: 'CONFIABILIDAD', title: '99.9% de disponibilidad garantizada',             desc: 'Infraestructura en la nube con alta disponibilidad y recuperación automática ante cualquier falla.' },
-  { tag: 'INTEGRACIÓN',   title: 'API REST para integraciones',                     desc: 'Conectá Turnix con tu CRM, sistema de citas o base de datos de clientes mediante nuestra API.' },
+  { tag: 'INTEGRACIÓN',   title: 'API REST para integraciones',                     desc: 'Conectá SHÜY4Y con tu CRM, sistema de citas o base de datos de clientes mediante nuestra API.' },
 ]
 
 export default function LandingBenefits() {

@@ -6,7 +6,7 @@ const cases = [
   {
     icon: '🏥', sector: 'SALUD', title: 'Clínicas y consultorios',
     pain:    'Los pacientes llegan todos a la misma hora y se acumulan en la sala.',
-    solution:'Con Turnix el paciente toma turno desde su celular y vuelve cuando es su momento.',
+    solution:'Con SHÜY4Y el paciente toma turno desde su celular y vuelve cuando es su momento.',
     metrics: ['–60% abandono de consultas', 'Sala organizada', 'Mejor percepción del servicio'],
   },
   {
@@ -51,7 +51,7 @@ export default function LandingUseCases() {
           <p className="text-xs font-mono text-amber-400 uppercase tracking-[0.3em] mb-3">◆ Casos de uso</p>
           <h2 className="font-black uppercase tracking-tight text-zinc-100 text-4xl lg:text-5xl">
             ¿TU NEGOCIO ATIENDE PERSONAS?<br />
-            <span className="text-amber-400">TURNIX ES PARA VOS.</span>
+            <span className="text-amber-400">SHÜY4Y ES PARA VOS.</span>
           </h2>
         </div>
 
