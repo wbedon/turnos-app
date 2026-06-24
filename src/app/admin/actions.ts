@@ -41,7 +41,6 @@ export async function callNext(
   const nextTokens: { token: string; number: number }[] = data ?? []
 
   if (nextTokens.length > 0) {
-    // Obtener info de la cola para armar el mensaje
     const { data: queue } = await supabaseAdmin
       .from('queues')
       .select('prefix, name, current_serving')
@@ -49,15 +48,23 @@ export async function callNext(
       .single()
 
     if (queue) {
-      // Notificar a los próximos en espera (los devuelve call_next_ticket)
-      await sendPushToTokens(
-        nextTokens.map((t) => t.token),
-        {
-          title: '⚠️ ¡Tu turno se acerca!',
-          body: `Estamos en ${queue.prefix}-${String(queue.current_serving).padStart(3, '0')} — ${queue.name}. Acercate al mostrador.`,
-          url:   '/ticket/',   // el SW abre la URL guardada en data.url del token
-          tag:   `queue-${queueId}`,
-        }
+      const serving = `${queue.prefix}-${String(queue.current_serving).padStart(3, '0')}`
+
+      // Envío personalizado por ticket: índice = personas adelante
+      await Promise.allSettled(
+        nextTokens.map((t, ahead) => {
+          const title =
+            ahead === 0 ? '🔔 ¡Sos el siguiente!' :
+            ahead === 1 ? '⏳ Te falta 1 turno'   :
+                          `⏳ Te faltan ${ahead} turnos`
+
+          return sendPushToTokens([t.token], {
+            title,
+            body: `Estamos en ${serving} — ${queue.name}. Preparate.`,
+            url:  `/ticket/${t.token}`,
+            tag:  `queue-${queueId}`,
+          })
+        })
       )
     }
   }
