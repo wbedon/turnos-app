@@ -1,11 +1,11 @@
 {
-  "name": "Sistema de Turnos",
-  "short_name": "Turnos",
-  "description": "Seguí tu turno desde el celular",
+  "name": "SHÜY4Y — Sistema de Turnos",
+  "short_name": "SHÜY4Y",
+  "description": "Seguí tu turno desde el celular sin quedarte esperando",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#fff7ed",
-  "theme_color": "#f97316",
+  "background_color": "#09090b",
+  "theme_color": "#09090b",
   "orientation": "portrait",
   "icons": [
     {

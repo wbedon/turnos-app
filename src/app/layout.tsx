@@ -18,13 +18,13 @@ const spaceMono = Space_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Sistema de Turnos",
+  title: "SHÜY4Y — Sistema de Turnos",
   description: "Gestioná tu turno desde el celular sin quedarte esperando",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Turnos",
+    title: "SHÜY4Y",
   },
   other: { "mobile-web-app-capable": "yes" },
 };
@@ -41,7 +41,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="es" className={`h-full ${inter.variable} ${spaceMono.variable}`}>
       <head>
-        <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
       </head>
       <body className="min-h-full bg-zinc-950 text-zinc-100 antialiased">
         {children}
